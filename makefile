@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator
+EXEC=refSimulator n50
 
 all: $(EXEC)
 
@@ -23,6 +23,12 @@ refSimulator:   simulator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 simulator.o: simulator.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+	
+n50:   n50.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+n50.o: N50.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
