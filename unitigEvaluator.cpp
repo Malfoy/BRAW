@@ -84,4 +84,7 @@ int main(int argc, char ** argv){
 	cout<<"True positive (kmers in the unitig and the references, good kmers): "<<TP<<endl;
 	cout<<"False positive (kmers in the unitig and NOT in the references, erroneous kmers): "<<FP<<endl;
 	cout<<"False Negative (kmers NOT in the unitig but in the references, missed kmers): "<<FN<<endl;
+	cout<<"Erroneous kmer rate : "<<(double)FP/(FP+TP)<<endl;
+	cout<<"Missing kmer rate : "<<(double)FN/genomicKmers.size()<<endl;
+	
 }
