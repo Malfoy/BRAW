@@ -12,6 +12,33 @@ using namespace std;
 
 
 
+char revCompChar(char c) {
+	switch (c) {
+		case 'A': return 'T';
+		case 'C': return 'G';
+		case 'G': return 'C';
+	}
+	return 'A';
+}
+
+
+
+string revComp(const string& s){
+	string rc(s.size(),0);
+	for (int i((int)s.length() - 1); i >= 0; i--){
+		rc[s.size()-1-i] = revCompChar(s[i]);
+	}
+	return rc;
+}
+
+
+
+string getCanonical(const string& str){
+	return (min(str,revComp(str)));
+}
+
+
+
 int main(int argc, char ** argv){
 	if(argc<4){
 		cout<<"[unitig file] [reference file] [k value]"<<endl;
@@ -31,7 +58,7 @@ int main(int argc, char ** argv){
 		getline(inRef,ref);
 		if(not ref.empty() and not useless.empty()){
 			for(uint i(0);i+k<ref.size();++i){
-				genomicKmers.insert(ref.substr(i,k));
+				genomicKmers.insert(getCanonical(ref.substr(i,k)));
 			}
 		}
 	}
@@ -43,7 +70,7 @@ int main(int argc, char ** argv){
 			size+=ref.size();
 			number++;
 			for(uint i(0);i+k<ref.size();++i){
-				if(genomicKmers.count(ref.substr(i,k))==0){
+				if(genomicKmers.count(getCanonical(ref.substr(i,k)))==0){
 					FP++;
 				}else{
 					TP++;
@@ -53,6 +80,7 @@ int main(int argc, char ** argv){
 	}
 	FN=genomicKmers.size()-TP;
 	cout<<"Unitig number: "<<number<< " Total size: "<<size<<" Mean: "<<size/number<<endl;
+	cout<<"Genomic kmer in the reference: "<<genomicKmers.size()<<endl;
 	cout<<"True positive (kmers in the unitig and the references, good kmers): "<<TP<<endl;
 	cout<<"False positive (kmers in the unitig and NOT in the references, erroneous kmers): "<<FP<<endl;
 	cout<<"False Negative (kmers NOT in the unitig but in the references, missed kmers): "<<FN<<endl;
