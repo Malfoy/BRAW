@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq
+EXEC=refSimulator n50 fa2fq unitigEvaluator
 
 all: $(EXEC)
 
@@ -23,6 +23,12 @@ refSimulator:   simulator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 simulator.o: simulator.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+	
+unitigEvaluator:   unitigEvaluator.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+unitigEvaluator.o: unitigEvaluator.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 	
 fa2fq:   fa2fq.o
