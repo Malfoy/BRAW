@@ -50,6 +50,10 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	string ref, useless;
 	ifstream inRef(inputRef),inUnitigs(inputUnitig);
+	if(not inRef.good() or not inUnitigs.good()){
+		cout<<"Problem with files opening"<<endl;
+		exit(1);
+	}
 	vector<uint> lengths;
 	unordered_set<string> genomicKmers;
 	uint size(0),number(0);
@@ -57,7 +61,7 @@ int main(int argc, char ** argv){
 		getline(inRef,useless);
 		getline(inRef,ref);
 		if(not ref.empty() and not useless.empty()){
-			for(uint i(0);i+k<ref.size();++i){
+			for(uint i(0);i+k<=ref.size();++i){
 				genomicKmers.insert(getCanonical(ref.substr(i,k)));
 			}
 		}
