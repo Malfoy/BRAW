@@ -73,7 +73,7 @@ int main(int argc, char ** argv){
 		if(not ref.empty() and not useless.empty()){
 			size+=ref.size();
 			number++;
-			for(uint i(0);i+k<ref.size();++i){
+			for(uint i(0);i+k<=ref.size();++i){
 				if(genomicKmers.count(getCanonical(ref.substr(i,k)))==0){
 					FP++;
 				}else{
