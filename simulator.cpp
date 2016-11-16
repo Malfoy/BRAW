@@ -39,7 +39,7 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	float hetero(stof(argv[2]));
+	float hetero(stof(argv[2])/2);
 	uint64_t heteroRate;
 	if(hetero==0){
 		heteroRate=-1;
@@ -49,7 +49,7 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	ifstream in(input);
 	//~ uint rate(10);
-	string useless, ref,ref2;
+	string useless, ref,ref2,ref3;
 	string fileName(input+(string)argv[2]+".fa");
 	cout<<fileName<<endl;
 	ofstream out(fileName,ios::trunc);
@@ -59,16 +59,19 @@ int main(int argc, char ** argv){
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
-			ref2=ref;
+			ref3=ref2=ref;
 			for(uint i(0);i<ref.size();++i){
 				if(rand()%heteroRate==0){
 					ref2[i]=randNucle(ref[i]);
 				}
+				if(rand()%heteroRate==0){
+					ref3[i]=randNucle(ref[i]);
+				}
 			}
-			out<<">Reference"+to_string(nimp)<<endl;
-			out<<ref<<endl;
-			out<<">AlternativeReference"+to_string(nimp++)<<endl;
+			out<<">AlternativeReference1"+to_string(nimp)<<endl;
 			out<<ref2<<endl;
+			out<<">AlternativeReference2"+to_string(nimp++)<<endl;
+			out<<ref3<<endl;
 		}
 	}
 }
