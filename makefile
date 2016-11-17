@@ -1,6 +1,6 @@
 #~ CC=/usr/bin/g++
 CC=g++
-CFLAGS=  -Wall  -Ofast -std=c++11 -march=native -pthread
+CFLAGS=  -Wall -Wextra  -Ofast -std=c++11 -march=native -pthread
 LDFLAGS=-pthread
 
 
@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine
 
 all: $(EXEC)
 
@@ -23,6 +23,12 @@ refSimulator:   simulator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 simulator.o: simulator.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+	
+oneLine:   oneLine.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+oneLine.o: oneLine.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 	
 unitigEvaluator:   unitigEvaluator.o
