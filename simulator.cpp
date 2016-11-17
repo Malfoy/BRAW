@@ -4,6 +4,7 @@
 #include <iostream>
 
 
+
 using namespace std;
 
 
@@ -51,11 +52,10 @@ int main(int argc, char ** argv){
 	//~ uint rate(10);
 	string useless, ref,ref2,ref3;
 	string fileName(input+(string)argv[2]+".fa");
-	cout<<fileName<<endl;
-	ofstream out(fileName,ios::trunc);
+	//~ cout<<fileName<<endl;
+	//~ ofstream out(fileName,ios::trunc);
 	uint nimp(0);
 	while(not in.eof()){
-		//~ cout<<"yo"<<endl;
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
@@ -68,10 +68,10 @@ int main(int argc, char ** argv){
 					ref3[i]=randNucle(ref[i]);
 				}
 			}
-			out<<">AlternativeReference1"+to_string(nimp)<<endl;
-			out<<ref2<<endl;
-			out<<">AlternativeReference2"+to_string(nimp++)<<endl;
-			out<<ref3<<endl;
+			cout<<">AlternativeReference1"+to_string(nimp)<<endl;
+			cout<<ref2<<endl;
+			cout<<">AlternativeReference2"+to_string(nimp++)<<endl;
+			cout<<ref3<<endl;
 		}
 	}
 }
