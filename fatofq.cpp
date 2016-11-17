@@ -26,14 +26,11 @@ int main(int argc, char ** argv){
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			toprint+="@"+useless.substr(1)+"\n"+ref+'\n'+'+'+'\n'+string(ref.size(),'I')+'\n';
-			//~ cout<<"@"+useless.substr(1)<<endl
-			//~ <<ref<<endl
-			//~ <<"+"<<endl
-			//~ <<string(ref.size(),'I')<<endl;
 		}
 		if(toprint.size()>10000){
 			cout<<toprint;
 			toprint="";
 		}
 	}
+	cout<<toprint;
 }
