@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split
 
 all: $(EXEC)
 
@@ -29,6 +29,12 @@ oneLine:   oneLine.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 oneLine.o: oneLine.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+split:   split.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+split.o: split.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 getLargeSequences:   getLargeSequences.o
