@@ -1,6 +1,6 @@
 #~ CC=/usr/bin/g++
 CC=g++
-CFLAGS=  -Wall -Wextra  -Ofast -std=c++11 -march=native -pthread
+CFLAGS=  -Wall -Wextra  -Ofast -std=c++11 -march=native -pthread -pipe
 LDFLAGS=-pthread
 
 
@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences
 
 all: $(EXEC)
 
@@ -24,25 +24,31 @@ refSimulator:   simulator.o
 
 simulator.o: simulator.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
-	
+
 oneLine:   oneLine.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 oneLine.o: oneLine.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
-	
+
+getLargeSequences:   oneLine.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+getLargeSequences.o: oneLine.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
 unitigEvaluator:   unitigEvaluator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 unitigEvaluator.o: unitigEvaluator.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
-	
+
 fa2fq:   fa2fq.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 fa2fq.o: fatofq.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
-	
+
 n50:   n50.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
