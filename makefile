@@ -34,7 +34,7 @@ oneLine.o: oneLine.cpp
 getLargeSequences:   oneLine.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-getLargeSequences.o: oneLine.cpp
+getLargeSequences.o: getLargeSequences.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 unitigEvaluator:   unitigEvaluator.o

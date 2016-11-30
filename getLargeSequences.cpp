@@ -19,7 +19,7 @@ int main(int argc, char ** argv){
 	string input(argv[1]);
 	uint length(argv[2]);
 	srand (time(NULL));
-	string ref, useless,toprint;
+	string ref, useless;
 	ifstream in(input);
 	while(not in.eof()){
 		getline(in,useless);
