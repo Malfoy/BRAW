@@ -31,7 +31,7 @@ oneLine:   oneLine.o
 oneLine.o: oneLine.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-getLargeSequences:   oneLine.o
+getLargeSequences:   getLargeSequences.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 getLargeSequences.o: getLargeSequences.cpp
