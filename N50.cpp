@@ -37,16 +37,19 @@ int main(int argc, char ** argv){
 		++i;
 	}
 	cout<<"N50: "<<lengths[i-1]<<endl;
+	cout<<"L50: "<<i-1<<endl;
 	total=i=0;
 	while(total<size*0.80){
 		total+=lengths[i];
 		++i;
 	}
 	cout<<"N80: "<<lengths[i-1]<<endl;
+	cout<<"L80: "<<i-1<<endl;
 	total=i=0;
 	while(total<size*0.90){
 		total+=lengths[i];
 		++i;
 	}
 	cout<<"N90: "<<lengths[i-1]<<endl;
+	cout<<"L90: "<<i-1<<endl;
 }
