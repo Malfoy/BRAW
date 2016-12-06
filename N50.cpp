@@ -36,6 +36,8 @@ int main(int argc, char ** argv){
 		total+=lengths[i];
 		++i;
 	}
+	cout<<"#contigs: "<<lengths.size()<<endl;
+	cout<<"Total size: "<<size<<endl;
 	cout<<"N50: "<<lengths[i-1]<<endl;
 	cout<<"L50: "<<i<<endl;
 	total=i=0;
