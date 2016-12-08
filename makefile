@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator
 
 all: $(EXEC)
 
@@ -47,6 +47,12 @@ unitigEvaluator:   unitigEvaluator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 unitigEvaluator.o: unitigEvaluator.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+sequenceEvaluator:   sequenceEvaluator.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+sequenceEvaluator.o: sequenceEvaluator.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 fa2fq:   fa2fq.o
