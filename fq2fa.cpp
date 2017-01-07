@@ -27,7 +27,7 @@ int main(int argc, char ** argv){
 		getline(in,useless);
 		getline(in,useless);
 		if(ref.size()>1){
-			cout<<header<<endl;
+			cout<<">"+header<<endl;
 			cout<<ref<<endl;
 		}
 	}
