@@ -34,8 +34,8 @@ char randNucle(char c){
 
 
 int main(int argc, char ** argv){
-	if(argc<4){
-		cout<<"[Genome reference file] [read length] [coverage]"<<endl;
+	if(argc<5){
+		cout<<"[Genome reference file] [read length] [coverage] [error rate]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
@@ -43,7 +43,7 @@ int main(int argc, char ** argv){
 	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);
-	uint errorRate(100);
+	uint errorRate(1/(stof(argv[4])));
 	string useless, ref,read;
 	uint i(0);
 	ofstream perfect("perfectReads.fa"),out("reads.fa");
