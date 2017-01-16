@@ -15,11 +15,17 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator fq2fa
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator
 
 all: $(EXEC)
 
-refSimulator:   simulator.o
+refSimulator:   refSimulator.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+refSimulator.o: refSimulator.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+simulator:   simulator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 simulator.o: simulator.cpp
@@ -71,6 +77,12 @@ n50:   n50.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 n50.o: N50.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+correctionEvaluator:   correctionEvaluator.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+correctionEvaluator.o: correctionEvaluator.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:

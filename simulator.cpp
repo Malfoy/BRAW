@@ -33,45 +33,42 @@ char randNucle(char c){
 
 
 
-// cmdline: ./bmean [<genome.fasta	xxhash]
 int main(int argc, char ** argv){
-	if(argc<3){
-		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<endl;
+	if(argc<4){
+		cout<<"[Genome reference file] [read length] [coverage]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
-	float hetero(stof(argv[2])/2);
-	uint64_t heteroRate;
-	if(hetero==0){
-		heteroRate=-1;
-	}else{
-		heteroRate=(1/hetero);
-	}
+	float coverage(stof(argv[3]));
+	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);
-	//~ uint rate(10);
-	string useless, ref,ref2,ref3;
-	string fileName(input+(string)argv[2]+".fa");
-	//~ cout<<fileName<<endl;
-	//~ ofstream out(fileName,ios::trunc);
-	uint nimp(0);
+	uint errorRate(100);
+	string useless, ref,read;
+	uint i(0);
+	ofstream perfect("perfectReads.fa"),out("reads.fa");
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
-			ref3=ref2=ref;
-			for(uint i(0);i<ref.size();++i){
-				if(rand()%heteroRate==0){
-					ref2[i]=randNucle(ref[i]);
-				}
-				if(rand()%heteroRate==0){
-					ref3[i]=randNucle(ref[i]);
+			uint nucProduced(0);
+			while(nucProduced<coverage*ref.size()){
+				uint position=rand()%ref.size();
+				if(position+length<=ref.size()){
+					read=ref.substr(position,length);
+					perfect<<">"+i<<endl;
+					perfect<<read<<endl;
+					for(uint i(0);i<read.size();++i){
+						if(rand()%errorRate==0){
+							read[i]=randNucle(read[i]);
+						}
+					}
+					out<<">"+i<<endl;
+					out<<read<<endl;
+					nucProduced+=read.size();
 				}
 			}
-			cout<<">AlternativeReference1"+to_string(nimp)<<endl;
-			cout<<ref2<<endl;
-			cout<<">AlternativeReference2"+to_string(nimp++)<<endl;
-			cout<<ref3<<endl;
+
 		}
 	}
 }
