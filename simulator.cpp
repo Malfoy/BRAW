@@ -56,16 +56,17 @@ int main(int argc, char ** argv){
 				uint position=rand()%ref.size();
 				if(position+length<=ref.size()){
 					read=ref.substr(position,length);
-					perfect<<">"+i<<endl;
+					perfect<<">"+to_string(i)<<endl;
 					perfect<<read<<endl;
 					for(uint i(0);i<read.size();++i){
 						if(rand()%errorRate==0){
 							read[i]=randNucle(read[i]);
 						}
 					}
-					out<<">"+i<<endl;
+					out<<">"+to_string(i)<<endl;
 					out<<read<<endl;
 					nucProduced+=read.size();
+					++i;
 				}
 			}
 
