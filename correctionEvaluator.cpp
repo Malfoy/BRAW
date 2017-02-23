@@ -41,8 +41,9 @@ int main(int argc, char *argv[]) {
 	ifstream pstream(perfect);
 	ifstream eStream(erroneous);
 	ifstream cStream(corrected);
-	uint TP(0),FP(0),FN(0),errors(0),perfectReads(0);
+	uint64_t TP(0),TN(0),FP(0),FN(0),errors(0),perfectReads(0),reads(0),nuc(0);
 	while(not pstream.eof()){
+		reads++;
 		getline(pstream,useless);
 		getline(eStream,useless);
 		getline(cStream,useless);
@@ -51,6 +52,7 @@ int main(int argc, char *argv[]) {
 		getline(cStream,correctedRead);
 		bool perfectlyCorrected(true);
 		for(uint i(0);i<perfectRead.size();++i){
+			++nuc;
 			char p(perfectRead[i]);
 			char e(erroneousRead[i]);
 			char c(correctedRead[i]);
@@ -60,6 +62,8 @@ int main(int argc, char *argv[]) {
 					//False positive
 					++FP;
 					perfectlyCorrected=false;
+				}else{
+					++TN;
 				}
 			}else{
 				//ERROR
@@ -75,7 +79,7 @@ int main(int argc, char *argv[]) {
 					}else{
 						//False positive
 						perfectlyCorrected=false;
-						++FN;
+						++FP;
 					}
 				}
 			}
@@ -90,13 +94,25 @@ int main(int argc, char *argv[]) {
 	printInt(FN);
 	cout<<"True Positive, corrected errors: ";
 	printInt(TP);
+	cout<<"Sensitivity: ";
+	cout<<(double)(100*TP)/(TP+FN)<<endl;
+	cout<<"Specificity: ";
+	cout<<(double)(100*TN)/(TN+FP)<<endl;
 	cout<<"Errors then ";
 	printInt(errors);
 	cout<<"Errors now ";
 	printInt(FP+FN);
+	cout<<"Error rate then: ";
+	cout<<(double)(100*errors)/(nuc)<<endl;
+	cout<<"Error rate now: ";
+	cout<<(double)(100*(FP+FN))/(nuc)<<endl;
+	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
+	cout<<"Peads: ";
+	printInt(reads);
 	cout<<"Perfectreads: ";
 	printInt(perfectReads);
-	cout<<"Ratio:  "<<(double)errors/(FP+FN)<<endl;
+	cout<<"Ratio perfect reads:  "<<(double)100*perfectReads/(reads)<<endl;
+
 
     return 0;
 }
