@@ -15,9 +15,12 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver
 
 all: $(EXEC)
+
+interleaver:   interleaver.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 refSimulator:   refSimulator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
