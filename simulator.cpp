@@ -35,7 +35,7 @@ char randNucle(char c){
 
 int main(int argc, char ** argv){
 	if(argc<5){
-		cout<<"[Genome reference file] [read length] [coverage] [error rate]"<<endl;
+		cout<<"[Genome reference file] [read length] [coverage] [error rate] [prefix]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
@@ -44,29 +44,36 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	ifstream in(input);
 	uint errorRate(1/(stof(argv[4])));
-	string useless, ref,read;
+	string prefix(argv[5]);
+	string useless, ref,read,pread;
 	uint i(0);
-	ofstream perfect("perfectReads.fa"),out("reads.fa");
+	ofstream perfect("perfect"+prefix+".fa"),out(prefix+".fa");
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			uint nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
+				//produce a read
 				uint position=rand()%ref.size();
 				if(position+length<=ref.size()){
-					read=ref.substr(position,length);
-					perfect<<">"+to_string(i)<<endl;
-					perfect<<read<<endl;
+					uint error(0);
+					pread=ref.substr(position,length);
+					read=pread;
 					for(uint i(0);i<read.size();++i){
 						if(rand()%errorRate==0){
 							read[i]=randNucle(read[i]);
+							++error;
 						}
 					}
-					out<<">"+to_string(i)<<endl;
-					out<<read<<endl;
-					nucProduced+=read.size();
-					++i;
+					if(true){
+						perfect<<">"+to_string(i)<<endl;
+						perfect<<pread<<endl;
+						out<<">"+to_string(i)<<endl;
+						out<<read<<endl;
+						nucProduced+=read.size();
+						++i;
+					}
 				}
 			}
 

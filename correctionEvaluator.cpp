@@ -107,11 +107,11 @@ int main(int argc, char *argv[]) {
 	cout<<"Error rate now: ";
 	cout<<(double)(100*(FP+FN))/(nuc)<<endl;
 	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
-	cout<<"Peads: ";
+	cout<<"Reads: ";
 	printInt(reads);
-	cout<<"Perfectreads: ";
-	printInt(perfectReads);
-	cout<<"Ratio perfect reads:  "<<(double)100*perfectReads/(reads)<<endl;
+	cout<<"Erroneous reads: ";
+	printInt(reads-perfectReads);
+	cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
 
 
     return 0;
