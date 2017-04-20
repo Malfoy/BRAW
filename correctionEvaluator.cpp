@@ -89,28 +89,35 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	cout<<"False positive, inserted errors: ";
-	printInt(FP);
+	//~ printInt(FP);
+	cout<<FP<<endl;
 	cout<<"False Negative, non corrected errors: ";
-	printInt(FN);
+	//~ printInt(FN);
+	cout<<FN<<endl;
 	cout<<"True Positive, corrected errors: ";
-	printInt(TP);
+	//~ printInt(TP);
+	cout<<TP<<endl;
 	cout<<"Sensitivity: ";
 	cout<<(double)(100*TP)/(TP+FN)<<endl;
 	cout<<"Specificity: ";
 	cout<<(double)(100*TN)/(TN+FP)<<endl;
 	cout<<"Errors then ";
-	printInt(errors);
+	//~ printInt(errors);
+	cout<<errors<<endl;
 	cout<<"Errors now ";
-	printInt(FP+FN);
+	//~ printInt(FP+FN);
+	cout<<(FP+FN)<<endl;
 	cout<<"Error rate then: ";
 	cout<<(double)(100*errors)/(nuc)<<endl;
 	cout<<"Error rate now: ";
 	cout<<(double)(100*(FP+FN))/(nuc)<<endl;
 	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
 	cout<<"Reads: ";
-	printInt(reads);
+	//~ printInt(reads);
+	cout<<reads<<endl;
 	cout<<"Erroneous reads: ";
-	printInt(reads-perfectReads);
+	//~ printInt(reads-perfectReads);
+	cout<<(reads-perfectReads)<<endl;
 	cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
 
 
