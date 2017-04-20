@@ -17,9 +17,9 @@ void help(){
 	cout<<"./correctionEvaluator perfectReads.fa erroneousReads.fa correctedReads.fa  "<<endl;
 }
 
-void printInt(const int value){
+void printInt(const uint64_t value){
 	string numWithCommas = to_string(value);
-	int insertPosition = numWithCommas.length() - 3;
+	uint64_t insertPosition = numWithCommas.length() - 3;
 	while (insertPosition > 0) {
 		numWithCommas.insert(insertPosition, ",");
 		insertPosition-=3;
