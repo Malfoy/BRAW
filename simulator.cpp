@@ -47,7 +47,7 @@ int main(int argc, char ** argv){
 	string prefix(argv[5]);
 	string useless, ref,read,pread;
 	uint i(0);
-	ofstream perfect("perfect"+prefix+".fa"),out(prefix+".fa");
+	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
@@ -57,16 +57,18 @@ int main(int argc, char ** argv){
 				//produce a read
 				uint position=rand()%ref.size();
 				if(position+length<=ref.size()){
+					bool valid(true);
 					uint error(0);
 					pread=ref.substr(position,length);
 					read=pread;
 					for(uint i(0);i<read.size();++i){
+						if(read[i]=='N'){valid=false;break;}
 						if(rand()%errorRate==0){
 							read[i]=randNucle(read[i]);
 							++error;
 						}
 					}
-					if(true){
+					if(valid){
 						perfect<<">"+to_string(i)<<endl;
 						perfect<<pread<<endl;
 						out<<">"+to_string(i)<<endl;
