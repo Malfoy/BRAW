@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 	ifstream eStream(erroneous);
 	ifstream cStream(corrected);
 	uint64_t TP(0),TN(0),FP(0),FN(0),errors(0),perfectReads(0),reads(0),nuc(0);
-	while(not pstream.eof()){
+	while(not cStream.eof()){
 		reads++;
 		getline(pstream,useless);
 		getline(eStream,useless);
