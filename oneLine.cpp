@@ -18,20 +18,20 @@ int main(int argc, char ** argv){
 	}
 	string input(argv[1]);
 	srand (time(NULL));
-	string line, sequence;
+	string header, sequence,line;
 	ifstream in(input);
 	vector<uint> lengths;
 	while(not in.eof()){
-		getline(in,line);
-		cout<<line<<endl;
-		int c=in.peek();
+		getline(in,header);
+		if(header[0]!='>'){continue;}
+		char c=in.peek();
 		while(c!='>' and c!=EOF){
 			getline(in,line);
 			sequence+=line;
 			c=in.peek();
 		}
 		transform(sequence.begin(), sequence.end(), sequence.begin(), ::toupper);
-		cout<<sequence<<endl;
+		cout<<header<<'\n'<<sequence<<endl;
 		sequence="";
 	}
 }
