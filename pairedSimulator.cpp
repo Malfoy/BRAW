@@ -55,8 +55,8 @@ char randNucle(char c){
 
 
 int main(int argc, char ** argv){
-	if(argc<6){
-		cout<<"[Genome reference file] [read length] [fragment length] [coverage] [error rate] [prefix]"<<endl;
+	if(argc<7){
+		cout<<"[Genome reference file] [read length] [fragment length] [coverage] [error rate] [prefix] [MP or PE]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
@@ -67,6 +67,14 @@ int main(int argc, char ** argv){
 	ifstream in(input);
 	uint errorRate(1/(stof(argv[5])));
 	string prefix(argv[6]);
+	string type(argv[7]);
+	bool matePair(false);
+	if(type=="MP"){
+		matePair=true;
+		cout<<"I produce mate pairs"<<endl;
+	}else{
+		cout<<"I produce paired ends"<<endl;
+	}
 	string useless, ref,read,pread;
 	uint i(0);
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
@@ -96,7 +104,11 @@ int main(int argc, char ** argv){
 						//~ perfect<<">"+to_string(i)<<" "<<position<<endl;
 						//~ perfect<<pread<<endl;
 						out<<">"+to_string(i)<<" "<<position<<endl;
-						out<<read<<endl;
+						if(matePair){
+							out<<revComp(read)<<endl;
+						}else{
+							out<<read<<endl;
+						}
 						nucProduced+=read.size();
 						//~ ++i;
 					}
@@ -116,7 +128,11 @@ int main(int argc, char ** argv){
 						//~ perfect<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<endl;
 						//~ perfect<<pread<<endl;
 						out<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<endl;
-						out<<revComp(read)<<endl;
+						if(not matePair){
+							out<<revComp(read)<<endl;
+						}else{
+							out<<read<<endl;
+						}
 						nucProduced+=read.size();
 						++i;
 					}
