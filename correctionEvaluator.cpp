@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <unordered_map>
+#include <algorithm>
 
 
 
@@ -28,6 +29,20 @@ void printInt(const uint64_t value){
 }
 
 
+string getLineFasta(ifstream* in){
+	string line,result;
+	getline(*in,line);
+	char c=in->peek();
+	while(c!='>' and c!=EOF){
+		getline(*in,line);
+		result+=line;
+		c=in->peek();
+	}
+	transform(result.begin(), result.end(), result.begin(), ::toupper);
+	return result;
+}
+
+
 
 int main(int argc, char *argv[]) {
 	if(argc<3){
@@ -46,10 +61,11 @@ int main(int argc, char *argv[]) {
 		reads++;
 		getline(pstream,useless);
 		getline(eStream,useless);
-		getline(cStream,useless);
+		//~ getline(cStream,useless);
 		getline(pstream,perfectRead);
 		getline(eStream,erroneousRead);
-		getline(cStream,correctedRead);
+		//~ getline(cStream,correctedRead);
+		correctedRead=getLineFasta(&cStream);
 		bool perfectlyCorrected(true);
 		for(uint i(0);i<perfectRead.size();++i){
 			++nuc;
