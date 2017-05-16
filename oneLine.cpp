@@ -10,6 +10,18 @@
 using namespace std;
 
 
+string getLineFasta(ifstream* in){
+	string line,result;
+	getline(*in,line);
+	char c=in->peek();
+	while(c!='>' and c!=EOF){
+		getline(*in,line);
+		result+=line;
+		c=in->peek();
+	}
+	return result;
+}
+
 
 int main(int argc, char ** argv){
 	if(argc<2){
@@ -31,7 +43,7 @@ int main(int argc, char ** argv){
 			c=in.peek();
 		}
 		transform(sequence.begin(), sequence.end(), sequence.begin(), ::toupper);
-		cout<<header<<'\n'<<sequence<<endl;
+		cout<<header<<'\n'<<sequence<<"\n";
 		sequence="";
 	}
 }

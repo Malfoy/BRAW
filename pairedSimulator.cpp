@@ -9,6 +9,16 @@ using namespace std;
 
 
 
+static unsigned int seed;
+
+
+uint32_t xs(uint32_t& y){
+	y^=(y<<13); y^=(y>>17); return (y^=(y<<15));
+}
+
+
+
+
 char revCompChar(char c) {
 	switch (c) {
 		case 'A': return 'T';
@@ -31,7 +41,8 @@ string revComp(const string& s){
 
 
 char randNucle(char c){
-	switch (rand()%4){
+	//~ switch (rand()%4){
+	switch (xs(seed)%4){
 		case 0:
 			if(c!='A'){
 				return 'A';
@@ -80,13 +91,14 @@ int main(int argc, char ** argv){
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
 
 	while(not in.eof()){
+		seed=(rand());
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			uint nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
 				//produce a read
-				uint position=rand()%ref.size();
+				uint position=xs(seed)%ref.size();
 				if(position+fragmentSize<=ref.size()){
 					bool valid(true);
 					uint error(0);
@@ -95,7 +107,7 @@ int main(int argc, char ** argv){
 					read=pread;
 					for(uint i(0);i<read.size();++i){
 						if(read[i]=='N'){valid=false;break;}
-						if(rand()%errorRate==0){
+						if(xs(seed)%errorRate==0){
 							read[i]=randNucle(read[i]);
 							++error;
 						}
@@ -103,11 +115,11 @@ int main(int argc, char ** argv){
 					if(valid){
 						//~ perfect<<">"+to_string(i)<<" "<<position<<endl;
 						//~ perfect<<pread<<endl;
-						out<<">"+to_string(i)<<" "<<position<<endl;
+						out<<">"+to_string(i)<<" "<<position<<"\n";
 						if(matePair){
-							out<<revComp(read)<<endl;
+							out<<revComp(read)<<"\n";
 						}else{
-							out<<read<<endl;
+							out<<read<<"\n";
 						}
 						nucProduced+=read.size();
 						//~ ++i;
@@ -119,7 +131,7 @@ int main(int argc, char ** argv){
 					read=pread;
 					for(uint i(0);i<read.size();++i){
 						if(read[i]=='N'){valid=false;break;}
-						if(rand()%errorRate==0){
+						if(xs(seed)%errorRate==0){
 							read[i]=randNucle(read[i]);
 							++error;
 						}
@@ -127,11 +139,11 @@ int main(int argc, char ** argv){
 					if(valid){
 						//~ perfect<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<endl;
 						//~ perfect<<pread<<endl;
-						out<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<endl;
+						out<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<"\n";
 						if(not matePair){
-							out<<revComp(read)<<endl;
+							out<<revComp(read)<<"\n";
 						}else{
-							out<<read<<endl;
+							out<<read<<"\n";
 						}
 						nucProduced+=read.size();
 						++i;

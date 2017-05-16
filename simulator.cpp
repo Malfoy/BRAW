@@ -8,9 +8,18 @@
 using namespace std;
 
 
+static unsigned int seed;
+
+
+uint32_t xs(uint32_t& y){
+	y^=(y<<13); y^=(y>>17); return (y^=(y<<15));
+}
+
+
 
 char randNucle(char c){
-	switch (rand()%4){
+	//~ switch (rand()%4){
+	switch (xs(seed)%4){
 		case 0:
 			if(c!='A'){
 				return 'A';
@@ -33,6 +42,10 @@ char randNucle(char c){
 
 
 
+
+
+
+
 int main(int argc, char ** argv){
 	if(argc<5){
 		cout<<"[Genome reference file] [read length] [coverage] [error rate] [prefix]"<<endl;
@@ -49,13 +62,15 @@ int main(int argc, char ** argv){
 	uint i(0);
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
 	while(not in.eof()){
+		seed=(rand());
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			uint nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
 				//produce a read
-				uint position=rand()%ref.size();
+				uint position=xs(seed)%ref.size();
+				//~ uint position=rand()%ref.size();
 				if(position+length<=ref.size()){
 					bool valid(true);
 					uint error(0);
@@ -63,16 +78,17 @@ int main(int argc, char ** argv){
 					read=pread;
 					for(uint i(0);i<read.size();++i){
 						if(read[i]=='N'){valid=false;break;}
-						if(rand()%errorRate==0){
+						if(xs(seed)%errorRate==0){
+						//~ if(rand()%errorRate==0){
 							read[i]=randNucle(read[i]);
 							++error;
 						}
 					}
 					if(valid){
-						perfect<<">"+to_string(i)<<endl;
-						perfect<<pread<<endl;
-						out<<">"+to_string(i)<<endl;
-						out<<read<<endl;
+						perfect<<">"+to_string(i)<<"\n";
+						perfect<<pread<<"\n";
+						out<<">"+to_string(i)<<"\n";
+						out<<read<<"\n";
 						nucProduced+=read.size();
 						++i;
 					}
