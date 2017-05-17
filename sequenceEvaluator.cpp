@@ -80,7 +80,7 @@ int main(int argc, char ** argv){
 		}
 	}
 	uint FP(0),TP(0),FN(0);
-	while(not inRef.eof()){
+	while(not inSequences.eof()){
 		getline(inSequences,useless);
 		getline(inSequences,ref);
 		if(not ref.empty() and not useless.empty()){

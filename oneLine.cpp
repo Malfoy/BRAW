@@ -23,12 +23,34 @@ string getLineFasta(ifstream* in){
 }
 
 
+void clean(string& str){
+	for(uint i(0); i< str.size(); ++i){
+		switch(str[i]){
+			case 'a':break;
+			case 'A':break;
+			case 'c':break;
+			case 'C':break;
+			case 'g':break;
+			case 'G':break;
+			case 't':break;
+			case 'T':break;
+			default: str="";return;
+		}
+	}
+	transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
+
 int main(int argc, char ** argv){
 	if(argc<2){
-		cout<<"[Fasta file]"<<endl;
+		cout<<"[Fasta file] [clean]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
+	bool cleaning(false);
+	if(argc>2){
+		cleaning=true;
+	}
 	srand (time(NULL));
 	string header, sequence,line;
 	ifstream in(input);
@@ -42,8 +64,14 @@ int main(int argc, char ** argv){
 			sequence+=line;
 			c=in.peek();
 		}
-		transform(sequence.begin(), sequence.end(), sequence.begin(), ::toupper);
-		cout<<header<<'\n'<<sequence<<"\n";
+		if(cleaning){
+			clean(sequence);
+			if(not sequence.empty()){
+				cout<<header<<'\n'<<sequence<<"\n";
+			}
+		}else{
+			cout<<header<<'\n'<<sequence<<"\n";
+		}
 		sequence="";
 	}
 }
