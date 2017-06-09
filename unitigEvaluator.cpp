@@ -12,6 +12,21 @@
 using namespace std;
 
 
+string intToString(uint64_t n){
+	if(n<1000){
+		return to_string(n);
+	}
+	string end(to_string(n%1000));
+	if(end.size()==3){
+		return intToString(n/1000)+","+end;
+	}
+	if(end.size()==2){
+		return intToString(n/1000)+",0"+end;
+	}
+	return intToString(n/1000)+",00"+end;
+}
+
+
 
 char revCompChar(char c) {
 	switch (c) {
@@ -84,11 +99,11 @@ int main(int argc, char ** argv){
 		}
 	}
 	FN=genomicKmers.size()-TP;
-	cout<<"Unitig number: "<<number<< " Total size: "<<size<<" Mean: "<<size/number<<endl;
-	cout<<"Genomic kmer in the reference: "<<genomicKmers.size()<<endl;
-	cout<<"True positive (kmers in the unitig and the references, good kmers): "<<TP<<endl;
-	cout<<"False positive (kmers in the unitig and NOT in the references, erroneous kmers): "<<FP<<endl;
-	cout<<"False Negative (kmers NOT in the unitig but in the references, missed kmers): "<<FN<<endl;
+	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
+	cout<<"Genomic kmer in the reference: "<<intToString(genomicKmers.size())<<endl;
+	cout<<"True positive (kmers in the unitig and the references, good kmers): "<<intToString(TP)<<endl;
+	cout<<"False positive (kmers in the unitig and NOT in the references, erroneous kmers): "<<intToString(FP)<<endl;
+	cout<<"False Negative (kmers NOT in the unitig but in the references, missed kmers): "<<intToString(FN)<<endl;
 	cout<<"Erroneous kmer rate (*1000): "<<(double)1000*FP/(FP+TP)<<endl;
 	cout<<"Missing kmer rate (*1000): "<<(double)1000*FN/genomicKmers.size()<<endl;
 
