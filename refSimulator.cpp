@@ -33,6 +33,22 @@ char randNucle(char c){
 
 
 
+char randNuc(char c){
+	switch (rand()%4){
+		case 0:
+				return 'A';
+		case 1:
+				return 'C';
+		case 2:
+				return 'G';
+		case 3:
+				return 'T';
+	}
+	return randNucle(c);
+}
+
+
+
 int main(int argc, char ** argv){
 	if(argc<3){
 		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<endl;
@@ -61,10 +77,10 @@ int main(int argc, char ** argv){
 			ref3=ref2=ref;
 			for(uint i(0);i<ref.size();++i){
 				if(rand()%heteroRate==0){
-					ref2[i]=randNucle(ref[i]);
+					ref2[i]=randNuc(ref[i]);
 				}
 				if(rand()%heteroRate==0){
-					ref3[i]=randNucle(ref[i]);
+					ref3[i]=randNuc(ref[i]);
 				}
 			}
 			cout<<">AlternativeReference1"+to_string(nimp)<<endl;
