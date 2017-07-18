@@ -18,14 +18,18 @@ void help(){
 	cout<<"./correctionEvaluator perfectReads.fa erroneousReads.fa correctedReads.fa  "<<endl;
 }
 
-void printInt(const uint64_t value){
-	string numWithCommas = to_string(value);
-	uint64_t insertPosition = numWithCommas.length() - 3;
-	while (insertPosition > 0) {
-		numWithCommas.insert(insertPosition, ",");
-		insertPosition-=3;
+string intToString(uint64_t n){
+	if(n<1000){
+		return to_string(n);
 	}
-	cout<<numWithCommas<<endl;
+	string end(to_string(n%1000));
+	if(end.size()==3){
+		return intToString(n/1000)+","+end;
+	}
+	if(end.size()==2){
+		return intToString(n/1000)+",0"+end;
+	}
+	return intToString(n/1000)+",00"+end;
 }
 
 
@@ -106,23 +110,23 @@ int main(int argc, char *argv[]) {
 	}
 	cout<<"False positive, inserted errors: ";
 	//~ printInt(FP);
-	cout<<FP<<endl;
+	cout<<intToString(FP)<<endl;
 	cout<<"False Negative, non corrected errors: ";
 	//~ printInt(FN);
-	cout<<FN<<endl;
+	cout<<intToString(FN)<<endl;
 	cout<<"True Positive, corrected errors: ";
 	//~ printInt(TP);
-	cout<<TP<<endl;
+	cout<<intToString(TP)<<endl;
 	cout<<"Sensitivity: ";
 	cout<<(double)(100*TP)/(TP+FN)<<endl;
 	cout<<"Specificity: ";
 	cout<<(double)(100*TN)/(TN+FP)<<endl;
 	cout<<"Errors then ";
 	//~ printInt(errors);
-	cout<<errors<<endl;
+	cout<<intToString(errors)<<endl;
 	cout<<"Errors now ";
 	//~ printInt(FP+FN);
-	cout<<(FP+FN)<<endl;
+	cout<<intToString(FP+FN)<<endl;
 	cout<<"Error rate then: ";
 	cout<<(double)(100*errors)/(nuc)<<endl;
 	cout<<"Error rate now: ";
@@ -130,10 +134,10 @@ int main(int argc, char *argv[]) {
 	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
 	cout<<"Reads: ";
 	//~ printInt(reads);
-	cout<<reads<<endl;
+	cout<<intToString(reads)<<endl;
 	cout<<"Erroneous reads: ";
 	//~ printInt(reads-perfectReads);
-	cout<<(reads-perfectReads)<<endl;
+	cout<<intToString(reads-perfectReads)<<endl;
 	cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
 
 
