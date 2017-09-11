@@ -54,6 +54,7 @@ int main(int argc, char ** argv){
 		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<endl;
 		exit(0);
 	}
+	uint snp1(0),snp2(0);
 	string input(argv[1]);
 	float hetero(stof(argv[2])/2);
 	uint64_t heteroRate;
@@ -77,15 +78,17 @@ int main(int argc, char ** argv){
 			ref3=ref2=ref;
 			for(uint i(0);i<ref.size();++i){
 				if(rand()%heteroRate==0){
-					ref2[i]=randNuc(ref[i]);
+					ref2[i]=randNucle(ref[i]);
+					snp1++;
 				}
 				if(rand()%heteroRate==0){
-					ref3[i]=randNuc(ref[i]);
+					ref3[i]=randNucle(ref[i]);
+					snp2++;
 				}
 			}
-			cout<<">AlternativeReference1"+to_string(nimp)<<endl;
+			cout<<">AlternativeReference1:"+to_string(snp1)<<endl;
 			cout<<ref2<<endl;
-			cout<<">AlternativeReference2"+to_string(nimp++)<<endl;
+			cout<<">AlternativeReference2:"+to_string(snp2)<<endl;
 			cout<<ref3<<endl;
 		}
 	}
