@@ -66,7 +66,7 @@ int main(int argc, char ** argv){
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
-			uint nucProduced(0);
+			uint64_t nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
 				//produce a read
 				uint position=xs(seed)%ref.size();
@@ -77,7 +77,7 @@ int main(int argc, char ** argv){
 					pread=ref.substr(position,length);
 					read=pread;
 					for(uint i(0);i<read.size();++i){
-						if(read[i]=='N'){valid=false;break;}
+						if(read[i]=='N' or read[i]=='n'){valid=false;break;}
 						if(xs(seed)%errorRate==0){
 						//~ if(rand()%errorRate==0){
 							read[i]=randNucle(read[i]);
