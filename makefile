@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver pairedSimulator badvisor
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver pairedSimulator badvisor
 
 all: $(EXEC)
 
@@ -50,6 +50,12 @@ oneLine:   oneLine.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 oneLine.o: oneLine.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+oneLineBreak:   oneLineBreak.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+oneLineBreak.o: oneLineBreak.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 split:   split.o

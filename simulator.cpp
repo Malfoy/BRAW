@@ -52,7 +52,7 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	float coverage(stof(argv[3]));
+	double coverage(stof(argv[3]));
 	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);

@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
 	string readsFile(argv[1]),line,lineF0,lineF1;
-	vector<vector<uint>> histograms;
-	vector<uint> numberKmerDistinct,minimumList;
+	vector<vector<uint64_t>> histograms;
+	vector<uint64_t> numberKmerDistinct,minimumList;
 	uint frac(1000);
 	for(uint k(21);k<201;k+=10){
 		ifstream stream(readsFile+"_k"+to_string(k)+".hist");
@@ -52,13 +52,13 @@ int main(int argc, char *argv[]) {
 		lineF0="";
 		getline(stream,lineF0);
 		//~ uint64_t numberKmer(stoi(lineF1));
-		numberKmerDistinct.push_back(stoi(lineF0));
-		vector<uint> abundances;
+		numberKmerDistinct.push_back(stol(lineF0));
+		vector<uint64_t> abundances;
 		while(not stream.eof()){
 			getline(stream,line,'	');
 			getline(stream,line);
 			if(line.size()>0){
-				abundances.push_back(stoi(line));
+				abundances.push_back(stol(line));
 			}
 		}
 		histograms.push_back(abundances);
