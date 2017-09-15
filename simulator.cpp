@@ -70,10 +70,12 @@ int main(int argc, char ** argv){
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			uint64_t nucProduced(0);
-			while(nucProduced<coverage*ref.size()){
-				seed=(rand());
+			while(nucProduced<(uint64_t)(coverage*ref.size())){
+				if(i%100==0){
+					seed=(rand());
+				}
 				//produce a read
-				uint position=xs(seed)%ref.size();
+				uint64_t position=xs(seed)%ref.size();
 				//~ uint position=rand()%ref.size();
 				if(position+length<=ref.size()){
 					bool valid(true);
