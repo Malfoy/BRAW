@@ -63,12 +63,14 @@ int main(int argc, char *argv[]) {
 	uint64_t TP(0),TN(0),FP(0),FN(0),errors(0),perfectReads(0),reads(0),nuc(0);
 	while(not cStream.eof()){
 		reads++;
-		getline(pstream,useless);
-		getline(eStream,useless);
+		//~ getline(pstream,useless);
+		//~ getline(eStream,useless);
 		//~ getline(cStream,useless);
-		getline(pstream,perfectRead);
-		getline(eStream,erroneousRead);
+		//~ getline(pstream,perfectRead);
+		//~ getline(eStream,erroneousRead);
 		//~ getline(cStream,correctedRead);
+		erroneousRead=getLineFasta(&eStream);
+		perfectRead=getLineFasta(&pstream);
 		correctedRead=getLineFasta(&cStream);
 		bool perfectlyCorrected(true);
 		for(uint i(0);i<perfectRead.size();++i){

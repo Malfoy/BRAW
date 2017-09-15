@@ -12,7 +12,7 @@ static unsigned int seed;
 
 
 uint32_t xs(uint32_t& y){
-	y^=(y<<13); y^=(y>>17); return (y^=(y<<15));
+	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
 }
 
 
@@ -24,18 +24,22 @@ char randNucle(char c){
 			if(c!='A'){
 				return 'A';
 			}
+			return randNucle(c);
 		case 1:
 			if(c!='C'){
 				return 'C';
 			}
+			return randNucle(c);
 		case 2:
 			if(c!='G'){
 				return 'G';
 			}
+			return randNucle(c);
 		case 3:
 			if(c!='T'){
 				return 'T';
 			}
+			return randNucle(c);
 	}
 	return randNucle(c);
 }
