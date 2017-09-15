@@ -66,12 +66,12 @@ int main(int argc, char ** argv){
 	uint i(0);
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
 	while(not in.eof()){
-		seed=(rand());
 		getline(in,useless);
 		getline(in,ref);
 		if(not ref.empty() and not useless.empty()){
 			uint64_t nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
+				seed=(rand());
 				//produce a read
 				uint position=xs(seed)%ref.size();
 				//~ uint position=rand()%ref.size();
