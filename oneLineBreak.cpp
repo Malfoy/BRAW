@@ -63,5 +63,6 @@ int main(int argc, char ** argv){
 			c=in.peek();
 		}
 		clean(sequence,cleaning);
+		sequence="";
 	}
 }
