@@ -13,9 +13,8 @@ static unsigned int seed;
 
 
 uint32_t xs(uint32_t& y){
-	y^=(y<<13); y^=(y>>17); return (y^=(y<<15));
+	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
 }
-
 
 
 
@@ -47,18 +46,22 @@ char randNucle(char c){
 			if(c!='A'){
 				return 'A';
 			}
+			return randNucle(c);
 		case 1:
 			if(c!='C'){
 				return 'C';
 			}
+			return randNucle(c);
 		case 2:
 			if(c!='G'){
 				return 'G';
 			}
+			return randNucle(c);
 		case 3:
 			if(c!='T'){
 				return 'T';
 			}
+			return randNucle(c);
 	}
 	return randNucle(c);
 }
@@ -97,6 +100,9 @@ int main(int argc, char ** argv){
 		if(not ref.empty() and not useless.empty()){
 			uint nucProduced(0);
 			while(nucProduced<coverage*ref.size()){
+				if(i%100==0){
+					seed=(rand());
+				}
 				//produce a read
 				uint position=xs(seed)%ref.size();
 				if(position+fragmentSize<=ref.size()){
