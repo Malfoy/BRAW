@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver pairedSimulator badvisor
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver pairedSimulator badvisor fractionFile
 
 all: $(EXEC)
 
@@ -26,6 +26,12 @@ badvisor:   badvisor.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 badvisor.o: Badvisor.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+fractionFile:   fractionFile.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+fractionFile.o: fractionFile.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 refSimulator:   refSimulator.o
