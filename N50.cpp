@@ -40,7 +40,7 @@ int main(int argc, char ** argv){
 		return 0;
 	}
 	vector<uint> lengths;
-	uint size(0);
+	uint64_t size(0);
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
@@ -50,7 +50,7 @@ int main(int argc, char ** argv){
 		}
 	}
 	sort(lengths.begin(),lengths.end(),greater<uint>());
-	uint total(0),i(0);
+	uint64_t total(0),i(0);
 	while(total<size*0.5){
 		total+=lengths[i];
 		++i;
