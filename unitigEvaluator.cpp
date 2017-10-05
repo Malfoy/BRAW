@@ -5,6 +5,10 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include "sparsepp/spp.h"
+
+using spp::sparse_hash_map;
+
 
 
 
@@ -71,14 +75,14 @@ int main(int argc, char ** argv){
 		exit(1);
 	}
 	vector<uint> lengths;
-	unordered_set<string> genomicKmers;
+	sparse_hash_map<string, bool> genomicKmers;
 	uint size(0),number(0);
 	while(not inRef.eof()){
 		getline(inRef,useless);
 		getline(inRef,ref);
 		if(not ref.empty() and not useless.empty()){
 			for(uint i(0);i+k<=ref.size();++i){
-				genomicKmers.insert(getCanonical(ref.substr(i,k)));
+				genomicKmers[getCanonical(ref.substr(i,k))]=true;
 			}
 		}
 	}
