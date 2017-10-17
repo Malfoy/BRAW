@@ -15,12 +15,18 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver pairedSimulator badvisor fractionFile
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile
 
 all: $(EXEC)
 
 interleaver:   interleaver.o
 	$(CC) -o $@ $^ $(LDFLAGS)
+
+RC:   RC.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+RC.o: RC.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 badvisor:   badvisor.o
 	$(CC) -o $@ $^ $(LDFLAGS)
