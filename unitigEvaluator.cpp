@@ -76,7 +76,7 @@ int main(int argc, char ** argv){
 	}
 	vector<uint> lengths;
 	sparse_hash_map<string, bool> genomicKmers;
-	uint size(0),number(0);
+	uint64_t size(0),number(0);
 	while(not inRef.eof()){
 		getline(inRef,useless);
 		getline(inRef,ref);
@@ -86,7 +86,7 @@ int main(int argc, char ** argv){
 			}
 		}
 	}
-	uint FP(0),TP(0),FN(0);
+	uint64_t FP(0),TP(0),FN(0);
 	while(not inUnitigs.eof()){
 		getline(inUnitigs,useless);
 		getline(inUnitigs,ref);
