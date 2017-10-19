@@ -82,7 +82,7 @@ int main(int argc, char ** argv){
 		getline(inRef,ref);
 		if(not ref.empty() and not useless.empty()){
 			for(uint i(0);i+k<=ref.size();++i){
-				genomicKmers[getCanonical(ref.substr(i,k))]=true;
+				genomicKmers[getCanonical(ref.substr(i,k))]=false;
 			}
 		}
 	}
@@ -97,7 +97,10 @@ int main(int argc, char ** argv){
 				if(genomicKmers.count(getCanonical(ref.substr(i,k)))==0){
 					FP++;
 				}else{
-					TP++;
+					if(not genomicKmers[getCanonical(ref.substr(i,k))]){
+						genomicKmers[getCanonical(ref.substr(i,k))]=true;
+						TP++;
+					}
 				}
 			}
 		}
