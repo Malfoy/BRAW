@@ -125,6 +125,8 @@ int main(int argc, char *argv[]) {
 	cout<<intToString(TP)<<endl;
 	cout<<"Sensitivity: ";
 	cout<<(double)(100*TP)/(TP+FN)<<endl;
+	cout<<"Precision: ";
+	cout<<(double)(100*TP)/(TP+FP)<<endl;
 	cout<<"Specificity: ";
 	cout<<(double)(100*TN)/(TN+FP)<<endl;
 	cout<<"Errors then ";
