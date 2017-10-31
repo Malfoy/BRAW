@@ -15,9 +15,15 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader
 
 all: $(EXEC)
+
+sortByHeader:   sortByHeader.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+sortByHeader.o: SortByHeader.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 interleaver:   interleaver.o
 	$(CC) -o $@ $^ $(LDFLAGS)

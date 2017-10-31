@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	ifstream pstream(perfect);
 	ifstream eStream(erroneous);
 	ifstream cStream(corrected);
-	uint64_t TP(0),TN(0),FP(0),FN(0),errors(0),perfectReads(0),reads(0),nuc(0);
+	uint64_t TP(0),TN(0),FP(0),FN(0),errors(0),perfectReads(0),reads(0),nuc(0),readImproved(0);
 	if( not (cStream.good() and eStream.good() and pstream.good()) ){
 		cout<<"File problem"<<endl;
 		return 0;
@@ -77,6 +77,8 @@ int main(int argc, char *argv[]) {
 		perfectRead=getLineFasta(&pstream);
 		correctedRead=getLineFasta(&cStream);
 		bool perfectlyCorrected(true);
+		bool corrected(false);
+		bool wrongCorrection(false);
 		for(uint i(0);i<perfectRead.size();++i){
 			++nuc;
 			char p(perfectRead[i]);
@@ -96,6 +98,7 @@ int main(int argc, char *argv[]) {
 				++errors;
 				if(c==p){
 					//true positive
+					corrected=true;
 					++TP;
 				}else{
 					if(c==e){
@@ -105,6 +108,7 @@ int main(int argc, char *argv[]) {
 					}else{
 						//False positive
 						perfectlyCorrected=false;
+						wrongCorrection=true;
 						++FP;
 					}
 				}
@@ -112,6 +116,9 @@ int main(int argc, char *argv[]) {
 		}
 		if(perfectlyCorrected){
 			perfectReads++;
+		}
+		if(corrected and not wrongCorrection){
+			readImproved++;
 		}
 	}
 	cout<<"False positive, inserted errors: ";
@@ -147,7 +154,9 @@ int main(int argc, char *argv[]) {
 	//~ printInt(reads-perfectReads);
 	cout<<intToString(reads-perfectReads)<<endl;
 	cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
-
+	cout<<"Reads improved: ";;
+	//~ printInt(reads-perfectReads);
+	cout<<intToString(readImproved)<<endl;
 
     return 0;
 }
