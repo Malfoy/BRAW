@@ -124,8 +124,10 @@ int main(int argc, char ** argv){
 						out<<">"+to_string(i)<<"_"<<position<<"\n";
 						if(matePair){
 							out<<revComp(read)<<"\n";
+							perfect<<revComp(pread)<<"\n";
 						}else{
 							out<<read<<"\n";
+							perfect<<(pread)<<"\n";
 						}
 						nucProduced+=read.size();
 						//~ ++i;
@@ -148,8 +150,10 @@ int main(int argc, char ** argv){
 						out<<">"+to_string(i)<<"bis_"<<(position+fragmentSize-length)<<"\n";
 						if(not matePair){
 							out<<revComp(read)<<"\n";
+							perfect<<revComp(pread)<<"\n";
 						}else{
 							out<<read<<"\n";
+							perfect<<(pread)<<"\n";
 						}
 						nucProduced+=read.size();
 						++i;
