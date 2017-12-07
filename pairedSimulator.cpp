@@ -122,6 +122,7 @@ int main(int argc, char ** argv){
 						//~ perfect<<">"+to_string(i)<<" "<<position<<endl;
 						//~ perfect<<pread<<endl;
 						out<<">"+to_string(i)<<"_"<<position<<"\n";
+						perfect<<">"+to_string(i)<<"_"<<position<<"\n";
 						if(matePair){
 							out<<revComp(read)<<"\n";
 							perfect<<revComp(pread)<<"\n";
@@ -148,6 +149,7 @@ int main(int argc, char ** argv){
 						//~ perfect<<">"+to_string(i)<<"bis "<<(position+fragmentSize-length)<<endl;
 						//~ perfect<<pread<<endl;
 						out<<">"+to_string(i)<<"bis_"<<(position+fragmentSize-length)<<"\n";
+						perfect<<">"+to_string(i)<<"bis_"<<(position+fragmentSize-length)<<"\n";
 						if(not matePair){
 							out<<revComp(read)<<"\n";
 							perfect<<revComp(pread)<<"\n";
