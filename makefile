@@ -15,14 +15,40 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader faToSeq seqToFa DBGSplitter sort_PAF
 
 all: $(EXEC)
+
+
+
+sort_PAF:   sort_PAF.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+sort_PAF.o: sort_PAF.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+DBGSplitter:   DBGSplitter.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+DBGSplitter.o: DBGSplitter.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 sortByHeader:   sortByHeader.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 sortByHeader.o: SortByHeader.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+faToSeq:   faToSeq.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+faToSeq.o: faToSeq.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+seqToFa:   seqToFa.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+seqToFa.o: seqToFa.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 interleaver:   interleaver.o
