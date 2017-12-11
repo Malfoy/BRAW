@@ -110,13 +110,14 @@ int main(int argc, char ** argv){
 		getline(inUnitigs,ref);
 		//FOREACH UNITIG
 		if(not ref.empty() and not useless.empty()){
-			 super_minimizer=kmer=minimizer=mmer="";
+			super_minimizer=kmer=minimizer=mmer="";
 			uint last_position(0);
 			//FOREACH KMER
-			for(uint i(0);i+k<=ref.size();++i){
+			uint i(0);
+			for(;i+k<=ref.size();++i){
 				kmer=getCanonical(ref.substr(i,k));
 				minimizer=(getCanonical(kmer.substr(0,m)));
-				//COMPUTER KMER MINIMIZER
+				//COMPUTE KMER MINIMIZER
 				for(uint j(1);j+m<=kmer.size();++j){
 					mmer=getCanonical(kmer.substr(j,m));
 					minimizer=min_accordingtoXS(minimizer,mmer);
@@ -126,11 +127,14 @@ int main(int argc, char ** argv){
 				}else{
 					if(super_minimizer!=minimizer){
 						//~ cerr<<super_minimizer<<" "<<minimizer<<endl;
-						cout<<">\n"<<ref.substr(last_position,i-last_position+k)<<"\n";
+						cout<<">\n"<<ref.substr(last_position,i-last_position+k-1)<<"\n";
 						last_position=i;
 						super_minimizer=minimizer;
 					}
 				}
+			}
+			if(i-last_position+k-1!=0){
+				cout<<">\n"<<ref.substr(last_position,i-last_position+k-1)<<"\n";
 			}
 		}
 	}
