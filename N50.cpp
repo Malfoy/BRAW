@@ -50,27 +50,25 @@ int main(int argc, char ** argv){
 		}
 	}
 	sort(lengths.begin(),lengths.end(),greater<uint>());
-	uint64_t total(0),i(0);
-	while(total<size*0.5){
-		total+=lengths[i];
-		++i;
-	}
+
 	cout<<"#contigs: "<<intToString(lengths.size())<<endl;
 	cout<<"Total size: "<<intToString(size)<<endl;
-	cout<<"N50: "<<intToString(lengths[i-1])<<endl;
-	cout<<"L50: "<<intToString(i)<<endl;
-	total=i=0;
-	while(total<size*0.80){
-		total+=lengths[i];
-		++i;
+
+	vector<double> proportions_to_compute({0.5,0.75,0.9,0.99});
+	vector<string> N,L;
+	uint64_t total(0),i(0);
+	for(uint I(0);I<proportions_to_compute.size();++I){
+		total=i=0;
+		while(total<size*proportions_to_compute[I]){
+			total+=lengths[i];
+			++i;
+		}
+		N.push_back(intToString(lengths[i-1]));
+		L.push_back(intToString(i));
 	}
-	cout<<"N80: "<<intToString(lengths[i-1])<<endl;
-	cout<<"L80: "<<intToString(i)<<endl;
-	total=i=0;
-	while(total<size*0.90){
-		total+=lengths[i];
-		++i;
-	}
-	cout<<"N90: "<<intToString(lengths[i-1])<<endl;
-	cout<<"L90: "<<intToString(i)<<endl;
+	cout<<"N50: "<<N[0]<<"		"<<"L50: "<<L[1]<<endl;
+	cout<<"N75: "<<N[1]<<"		"<<"L75: "<<L[1]<<endl;
+	cout<<"N90: "<<N[2]<<"		"<<"L90: "<<L[2]<<endl;
+	cout<<"N99: "<<N[3]<<"		"<<"L99: "<<L[3]<<endl;
+
 }
