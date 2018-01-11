@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader faToSeq seqToFa DBGSplitter sort_PAF
+EXEC=refSimulator n50 fa2fq unitigEvaluator oneLine oneLineBreak getLargeSequences split sequenceEvaluator fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader faToSeq seqToFa DBGSplitter
 
 all: $(EXEC)
 
