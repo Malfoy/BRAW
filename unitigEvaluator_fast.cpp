@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <chrono>
 #include <unordered_set>
+#include <functional>
+
 #include <unordered_map>
 
 
@@ -140,6 +142,9 @@ struct KeyHasher
 
 
 
+hash<uint64_t> bhash;
+
+
 
 int main(int argc, char ** argv){
 	if(argc<4){
@@ -176,7 +181,7 @@ int main(int argc, char ** argv){
 			getline(inRef,ref);
 			if(not ref.empty() and not useless.empty()){
 				__uint128_t seq(str2num(ref.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-				if(canon%nbHash==HASH){
+				if(bhash((uint64_t)canon)%nbHash==HASH){
 					genomicKmers[canon]=true;
 					genomicKmersNum++;
 				}
@@ -184,7 +189,7 @@ int main(int argc, char ** argv){
 					updateK(seq,ref[j+anchorSize]);
 					updateRCK(rcSeq,ref[j+anchorSize]);
 					canon=(min(seq, rcSeq));
-					if(canon%nbHash==HASH){
+					if(bhash((uint64_t)canon)%nbHash==HASH){
 						genomicKmers[canon]=true;
 						genomicKmersNum++;
 					}
@@ -199,7 +204,7 @@ int main(int argc, char ** argv){
 				size+=ref.size();
 				number++;
 				__uint128_t seq(str2num(ref.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-				if(canon%nbHash==HASH){
+				if(bhash((uint64_t)canon)%nbHash==HASH){
 					if(genomicKmers.count(canon)==0){
 						FP++;
 					}else{
@@ -210,7 +215,7 @@ int main(int argc, char ** argv){
 					updateK(seq,ref[j+anchorSize]);
 					updateRCK(rcSeq,ref[j+anchorSize]);
 					canon=(min(seq, rcSeq));
-					if(canon%nbHash==HASH){
+					if(bhash((uint64_t)canon)%nbHash==HASH){
 						if(genomicKmers.count(canon)==0){
 							FP++;
 						}else{
@@ -233,6 +238,7 @@ int main(int argc, char ** argv){
 				//~ }
 			}
 		}
+		//~ cout<<genomicKmers.size()<<endl;
 		inUnitigs.clear();
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();

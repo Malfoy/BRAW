@@ -97,6 +97,9 @@ int main(int argc, char ** argv){
 		seed=(rand());
 		getline(in,useless);
 		getline(in,ref);
+		if(ref.size()<fragmentSize){
+			break;
+		}
 		if(not ref.empty() and not useless.empty()){
 			uint nucProduced(0);
 			while(nucProduced<coverage*ref.size()){

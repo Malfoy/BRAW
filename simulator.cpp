@@ -58,7 +58,8 @@ void insertion(double rate, string& result){
 }
 
 
-string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
+//~ string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
+string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
 	string result;
 	result.reserve(5 * referenceSequence.size());
 	for(uint i(0); i < referenceSequence.size(); ++i){
@@ -112,8 +113,9 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	bool long_reads(false);
-	if(argc==6){
+	if(argc>6){
 		long_reads=true;
+		cout<<"LR"<<endl;
 	}
 	string input(argv[1]);
 	double coverage(stof(argv[3]));
