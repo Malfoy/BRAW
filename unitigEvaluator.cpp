@@ -90,7 +90,7 @@ int main(int argc, char ** argv){
 		 n=(stoi(argv[4]));
 	}
 	uint nbHash=1<<n;
-	cout<<nbHash<<endl;
+	//cout<<nbHash<<endl;
 	srand (time(NULL));
 	string ref, useless;
 	ifstream inRef(inputRef),inUnitigs(inputUnitig);
@@ -107,10 +107,15 @@ int main(int argc, char ** argv){
 			getline(inRef,useless);
 			getline(inRef,ref);
 			if(not ref.empty() and not useless.empty()){
+				if (useless[0] != '>') 
+				{
+					cout << "reference file needs to be oneline'd (use BRAW/oneLine)" << endl; cout << useless << endl; exit(1);
+				} 
+
 				for(uint i(0);i+k<=ref.size();++i){
 					if(str2num(getCanonical(ref.substr(i,k)))%nbHash==HASH){
 						genomicKmers[getCanonical(ref.substr(i,k))]=false;
-						genomicKmersNum++;
+						//genomicKmersNum++; // this method of determining genomicKmersNum includes duplicates
 					}else{
 					}
 				}
@@ -121,6 +126,11 @@ int main(int argc, char ** argv){
 			getline(inUnitigs,useless);
 			getline(inUnitigs,ref);
 			if(not ref.empty() and not useless.empty()){
+				if (useless[0] != '>') 
+				{
+					cout << "unitigs file needs to be oneline'd (use BRAW/oneLine)" << endl; exit(1);
+				} 
+
 				size+=ref.size();
 				number++;
 				for(uint i(0);i+k<=ref.size();++i){
@@ -141,6 +151,7 @@ int main(int argc, char ** argv){
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();
 		inRef.seekg(0, std::ios::beg);
+		genomicKmersNum += genomicKmers.size(); // taking all distinct kmers in the reference
 	}
 	FN=genomicKmersNum-TP;
 	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
