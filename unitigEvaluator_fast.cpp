@@ -251,6 +251,10 @@ int main(int argc, char ** argv){
 		cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
 		cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
 		cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
+		auto end = chrono::system_clock::now();
+		chrono::duration<double> elapsed_seconds = end - start;
+		time_t end_time = chrono::system_clock::to_time_t(end);
+		cout << "\nFinished pass at " << ctime(&end_time)<< "Elapsed time: " << elapsed_seconds.count() << "s\n";
 	}
 	FN=genomicKmersNum-TP;
 	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
