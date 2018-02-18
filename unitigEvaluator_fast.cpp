@@ -243,6 +243,14 @@ int main(int argc, char ** argv){
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();
 		inRef.seekg(0, std::ios::beg);
+		FN=genomicKmersNum-TP;
+		cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
+		cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
+		cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
+		cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
+		cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
+		cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
+		cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
 	}
 	FN=genomicKmersNum-TP;
 	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
