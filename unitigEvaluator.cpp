@@ -82,7 +82,7 @@ uint64_t str2num(const string& str){
 
 int main(int argc, char ** argv){
 	if(argc<4){
-		cout<<"[unitig file] [reference file] [k value] [n for 2^n pass]"<<endl;
+		cout<<"[unitig file] [reference file] [k value] [core number] [n for 2^n pass]"<<endl;
 		exit(0);
 	}
 	auto start = chrono::system_clock::now();
@@ -90,8 +90,9 @@ int main(int argc, char ** argv){
 	string inputRef(argv[2]);
 	uint k(stoi(argv[3]));
 	uint n(0);
-	if(argc>4){
-		 n=(stoi(argv[4]));
+	uint nb_cores(stoi(argv[4]));
+	if(argc>5){
+		 n=(stoi(argv[5]));
 	}
 	uint nbHash=1<<n;
 	cout<<"I will perform "<<nbHash<<" pass"<<endl;
@@ -111,7 +112,7 @@ int main(int argc, char ** argv){
 		vector<sparse_hash_map<string, bool>> genomicKmers;
 		genomicKmers.resize(1024);
 
-		#pragma omp parallel num_threads(8)
+		#pragma omp parallel num_threads(nb_cores)
 		{
 			string ref, useless,canon;
 			while(not inRef.eof()){
@@ -137,7 +138,7 @@ int main(int argc, char ** argv){
 			}
 		}
 
-		#pragma omp parallel num_threads(8)
+		#pragma omp parallel num_threads(nb_cores)
 		{
 			string ref, useless,canon;
 			while(not inUnitigs.eof()){
