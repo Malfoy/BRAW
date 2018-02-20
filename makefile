@@ -1,7 +1,7 @@
 #~ CC=/usr/bin/g++
 CC=g++
-CFLAGS=  -Wall -Wextra  -Ofast -std=c++11 -march=native -pthread -pipe -Isparsepp
-LDFLAGS=-pthread -Isparsepp
+CFLAGS=  -Wall -Wextra  -Ofast -std=c++11 -march=native -pthread -pipe -Isparsepp -fopenmp
+LDFLAGS=-pthread -Isparsepp -fopenmp
 
 
 ifeq ($(gprof),1)

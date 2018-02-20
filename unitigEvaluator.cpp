@@ -7,12 +7,16 @@
 #include <chrono>
 #include <unordered_set>
 #include "sparsepp/spp.h"
+#include <omp.h>
+
 
 using spp::sparse_hash_map;
 
 
 
-
+uint64_t xs(uint64_t y){
+	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
+}
 
 using namespace std;
 
@@ -90,61 +94,100 @@ int main(int argc, char ** argv){
 		 n=(stoi(argv[4]));
 	}
 	uint nbHash=1<<n;
-	cout<<nbHash<<endl;
+	cout<<"I will perform "<<nbHash<<" pass"<<endl;
 	srand (time(NULL));
-	string ref, useless;
+
 	ifstream inRef(inputRef),inUnitigs(inputUnitig);
 	if(not inRef.good() or not inUnitigs.good()){
 		cout<<"Problem with files opening"<<endl;
 		exit(1);
 	}
-	uint64_t size(0),number(0),genomicKmersNum(0);
-	uint64_t FP(0),TP(0),FN(0);
+	uint64_t FP(0),TP(0),FN(0),size(0),number(0),genomicKmersNum(0);
+	omp_lock_t lock[1024];
+	for (int i=0; i<1024; i++)
+        omp_init_lock(&(lock[i]));
 
 	for(uint HASH(0);HASH<nbHash;++HASH){
-		sparse_hash_map<string, bool> genomicKmers;
-		while(not inRef.eof()){
-			getline(inRef,useless);
-			getline(inRef,ref);
-			if(not ref.empty() and not useless.empty()){
-				for(uint i(0);i+k<=ref.size();++i){
-					if(str2num(getCanonical(ref.substr(i,k)))%nbHash==HASH){
-						genomicKmers[getCanonical(ref.substr(i,k))]=false;
-						genomicKmersNum++;
-					}else{
+		vector<sparse_hash_map<string, bool>> genomicKmers;
+		genomicKmers.resize(1024);
+
+		#pragma omp parallel num_threads(8)
+		{
+			string ref, useless,canon;
+			while(not inRef.eof()){
+				#pragma omp critical(dataupdate)
+				{
+					getline(inRef,useless);
+					getline(inRef,ref);
+				}
+				if(not ref.empty() and not useless.empty()){
+					for(uint i(0);i+k<=ref.size();++i){
+						canon=(getCanonical(ref.substr(i,k)));
+						uint64_t num((str2num(canon)));
+						if(num%nbHash==HASH){
+							uint64_t num2( (num/nbHash)%1024);
+							omp_set_lock(&(lock[num2]));
+							genomicKmers[num2][canon]=false;
+							omp_unset_lock(&(lock[num2]));
+							#pragma omp atomic update
+							genomicKmersNum++;
+						}
 					}
 				}
 			}
 		}
 
-		while(not inUnitigs.eof()){
-			getline(inUnitigs,useless);
-			getline(inUnitigs,ref);
-			if(not ref.empty() and not useless.empty()){
-				size+=ref.size();
-				number++;
-				for(uint i(0);i+k<=ref.size();++i){
-					if(str2num(getCanonical(ref.substr(i,k)))%nbHash==HASH){
-						if(genomicKmers.count(getCanonical(ref.substr(i,k)))==0){
-							FP++;
-						}else{
-							if(not genomicKmers[getCanonical(ref.substr(i,k))]){
-								genomicKmers[getCanonical(ref.substr(i,k))]=true;
-								TP++;
+		#pragma omp parallel num_threads(8)
+		{
+			string ref, useless,canon;
+			while(not inUnitigs.eof()){
+				#pragma omp critical(dataupdate)
+				{
+					getline(inUnitigs,useless);
+					getline(inUnitigs,ref);
+				}
+				if(not ref.empty() and not useless.empty()){
+					#pragma omp atomic
+					size+=ref.size();
+					#pragma omp atomic
+					number++;
+					for(uint i(0);i+k<=ref.size();++i){
+						canon=getCanonical(ref.substr(i,k));
+						uint64_t num((str2num(canon)));
+						if(num%nbHash==HASH){
+							if(genomicKmers[(num/nbHash)%1024].count(canon)==0){
+								#pragma omp atomic
+								FP++;
+							}else{
+									#pragma omp atomic
+									TP++;
 							}
 						}
 					}
 				}
 			}
 		}
+		if(HASH==0){
+			cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
+			cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
+		}
+		FN=genomicKmersNum-TP;
+		if(HASH!=nbHash-1){
+			cout<<"PARTIAL RESULTS:"<<endl;
+			cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
+			cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
+			cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
+			cout<<"Erroneous kmer rate (*1000): "<<(double)1000*FP/(FP+TP)<<endl;
+			cout<<"Missing kmer rate (*1000): "<<(double)1000*FN/genomicKmersNum<<endl;
+		}
 		inUnitigs.clear();
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();
 		inRef.seekg(0, std::ios::beg);
 	}
+	cout<<endl<<"FINAL RESULTS:"<<endl;
 	FN=genomicKmersNum-TP;
-	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
-	cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
+
 	cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
 	cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
 	cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
