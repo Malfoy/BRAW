@@ -41,9 +41,16 @@ int main(int argc, char ** argv){
 	}
 	vector<uint> lengths;
 	uint64_t size(0);
+	char c;
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
+		c=in.peek();
+			while(c!='>' and not in.eof()){
+				getline(in,useless);
+				ref+=useless;
+				c=in.peek();
+			}
 		if(not ref.empty() and not useless.empty()){
 			lengths.push_back(ref.size());
 			size+=ref.size();

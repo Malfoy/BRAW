@@ -160,8 +160,8 @@ int main(int argc, char ** argv){
 								#pragma omp atomic
 								FP++;
 							}else{
-									#pragma omp atomic
-									TP++;
+								#pragma omp atomic
+								TP++;
 							}
 						}
 					}
@@ -178,8 +178,8 @@ int main(int argc, char ** argv){
 			cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
 			cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
 			cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
-			cout<<"Erroneous kmer rate (*1000): "<<(double)1000*FP/(FP+TP)<<endl;
-			cout<<"Missing kmer rate (*1000): "<<(double)1000*FN/genomicKmersNum<<endl;
+			cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
+			cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
 		}
 		inUnitigs.clear();
 		inUnitigs.seekg(0, std::ios::beg);
@@ -187,13 +187,14 @@ int main(int argc, char ** argv){
 		inRef.seekg(0, std::ios::beg);
 	}
 	cout<<endl<<"FINAL RESULTS:"<<endl;
+	cout<<genomicKmersNum<<" "<<TP<<endl;
 	FN=genomicKmersNum-TP;
 
 	cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
 	cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
 	cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
-	cout<<"Erroneous kmer rate (*1000): "<<(double)1000*FP/(FP+TP)<<endl;
-	cout<<"Missing kmer rate (*1000): "<<(double)1000*FN/genomicKmersNum<<endl;
+	cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
+	cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
 
 	auto end = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
