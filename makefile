@@ -15,11 +15,17 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader faToSeq seqToFa DBGSplitter sort_PAF number2seq
+EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader faToSeq seqToFa DBGSplitter sort_PAF number2seq getReadsFromHeader
 
 all: $(EXEC)
 
 
+
+getReadsFromHeader:   getReadsFromHeader.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+getReadsFromHeader.o: getReadsFromHeader.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 sort_PAF:   sort_PAF.o
 	$(CC) -o $@ $^ $(LDFLAGS)
