@@ -16,16 +16,21 @@ using namespace std;
 void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header){
 	ifstream in(file);
 	string header_str,read_str,useless;
+	if(not in.good()){
+		return;
+	}
 	while(not in.eof()){
 		getline(in,header_str);
 		getline(in,read_str);
-		getline(in,useless);
-		getline(in,useless);
+		//~ getline(in,useless);
+		//~ getline(in,useless);
+		if(header_str.size()>1 and read_str.size()>1)
 		if(wanted_header.count(header_str)==1){
 			cout<<header_str<<'\n';
 			cout<<read_str<<'\n';
 			wanted_header.erase(header_str);
 		}
+		header_str=read_str=useless="";
 	}
 }
 
