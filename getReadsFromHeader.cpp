@@ -21,11 +21,12 @@ void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& 
 	}
 	while(not in.eof()){
 		getline(in,header_str);
+		header_str=header_str.substr(0,size_header);
 		getline(in,read_str);
 		getline(in,useless);
 		getline(in,useless);
 		if(header_str.size()>1 and read_str.size()>1)
-		if(wanted_header.count(header_str.substr(0,size_header))==1){
+		if(wanted_header.count(header_str)==1){
 			cout<<header_str<<'\n';
 			cout<<read_str<<'\n';
 			wanted_header.erase(header_str);
