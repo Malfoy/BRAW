@@ -13,12 +13,14 @@ using namespace std;
 
 
 
-void get_reads_from_header_file(const string& file,unordered_set<string>& wanted_header){
+void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header){
 	ifstream in(file);
-	string header_str,read_str;
+	string header_str,read_str,useless;
 	while(not in.eof()){
 		getline(in,header_str);
 		getline(in,read_str);
+		getline(in,useless);
+		getline(in,useless);
 		if(wanted_header.count(header_str)==1){
 			cout<<header_str<<'\n';
 			cout<<read_str<<'\n';
@@ -50,7 +52,7 @@ int main(int argc, char ** argv){
 	while(not in_file.eof()){
 		getline(in_file,file_name);
 		if(not wanted_header.empty()){
-			get_reads_from_header_file(file_name,wanted_header);
+			get_reads_from_header_file_fastq(file_name,wanted_header);
 		}
 	}
 
