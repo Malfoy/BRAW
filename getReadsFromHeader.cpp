@@ -50,10 +50,16 @@ int main(int argc, char ** argv){
 
 	//LOAD WANTED HEADER
 	ifstream in_header(header_file);
-	while(not in_header.eof()){
-		getline(in_header,header);
-		size_header=header.size();
-		wanted_header.insert(header);
+	if(in_header.good()){
+		while(not in_header.eof()){
+			getline(in_header,header);
+			if(header.size()>0){
+				size_header=header.size();
+				wanted_header.insert(header);
+			}
+		}
+	}else{
+		cerr<<"Problem open header list"<<endl;
 	}
 
 	ifstream in_file(file_file);
