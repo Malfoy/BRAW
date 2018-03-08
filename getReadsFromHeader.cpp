@@ -22,8 +22,8 @@ void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& 
 	while(not in.eof()){
 		getline(in,header_str);
 		getline(in,read_str);
-		//~ getline(in,useless);
-		//~ getline(in,useless);
+		getline(in,useless);
+		getline(in,useless);
 		if(header_str.size()>1 and read_str.size()>1)
 		if(wanted_header.count(header_str)==1){
 			cout<<header_str<<'\n';
@@ -60,6 +60,5 @@ int main(int argc, char ** argv){
 			get_reads_from_header_file_fastq(file_name,wanted_header);
 		}
 	}
-
 	return 0;
 }
