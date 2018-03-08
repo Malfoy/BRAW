@@ -13,7 +13,7 @@ using namespace std;
 
 
 
-void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header){
+void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header,uint size_header){
 	ifstream in(file);
 	string header_str,read_str,useless;
 	if(not in.good()){
@@ -25,7 +25,7 @@ void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& 
 		getline(in,useless);
 		getline(in,useless);
 		if(header_str.size()>1 and read_str.size()>1)
-		if(wanted_header.count(header_str)==1){
+		if(wanted_header.count(header_str.substr(0,size_header))==1){
 			cout<<header_str<<'\n';
 			cout<<read_str<<'\n';
 			wanted_header.erase(header_str);
@@ -45,11 +45,13 @@ int main(int argc, char ** argv){
 	string header_file(argv[1]);
 	string file_file(argv[2]);
 	string file_name,header;
+	uint size_header;
 
 	//LOAD WANTED HEADER
 	ifstream in_header(header_file);
 	while(not in_header.eof()){
 		getline(in_header,header);
+		size_header=header.size();
 		wanted_header.insert(header);
 	}
 
@@ -57,7 +59,7 @@ int main(int argc, char ** argv){
 	while(not in_file.eof()){
 		getline(in_file,file_name);
 		if(not wanted_header.empty()){
-			get_reads_from_header_file_fastq(file_name,wanted_header);
+			get_reads_from_header_file_fastq(file_name,wanted_header,size_header);
 		}
 	}
 	return 0;
