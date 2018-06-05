@@ -15,7 +15,7 @@ LDFLAGS=-g
 endif
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader DBGSplitter getReadsFromHeader sort_PAF number2seq  faToSeq seqToFa
+EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader sort_PAF number2seq  faToSeq seqToFa
 
 all: $(EXEC)
 
@@ -25,6 +25,12 @@ getReadsFromHeader:   getReadsFromHeader.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 getReadsFromHeader.o: getReadsFromHeader.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+sort_by_size:   sort_by_size.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+sort_by_size.o: sort_by_size.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 sort_PAF:   sort_PAF.o
