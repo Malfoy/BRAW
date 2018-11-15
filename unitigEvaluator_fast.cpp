@@ -152,7 +152,7 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	auto start = chrono::system_clock::now();
-	string inputUnitig(argv[1]);
+	string inputFILE(argv[1]);
 	string inputRef(argv[2]);
 	uint k(stoi(argv[3]));
 	anchorSize=k;
@@ -163,17 +163,20 @@ int main(int argc, char ** argv){
 		 n=(stoi(argv[4]));
 	}
 	uint nbHash=1<<n;
-	cout<<nbHash<<endl;
+	//~ cout<<"number of pass"<<nbHash<<endl;
 	srand (time(NULL));
 	string ref, useless;
-	ifstream inRef(inputRef),inUnitigs(inputUnitig);
-	if(not inRef.good() or not inUnitigs.good()){
-		cout<<"Problem with files opening"<<endl;
+	ifstream inRef(inputRef),inFILE(inputFILE);
+	if(not inRef.good()){
+		cout<<"Problem with ref file opening"<<endl;
 		exit(1);
 	}
-	uint64_t size(0),number(0),genomicKmersNum(0);
-	uint64_t FP(0),TP(0),FN(0);
 
+	if(not inRef.good()){
+		cout<<"Problem with file of file opening"<<endl;
+		exit(1);
+	}
+	uint64_t genomicKmersNum(0);
 	for(uint HASH(0);HASH<nbHash;++HASH){
 		unordered_map<__uint128_t, bool,KeyHasher> genomicKmers;
 		while(not inRef.eof()){
@@ -198,33 +201,40 @@ int main(int argc, char ** argv){
 		}
 		cout<<"Ref indexed"<<endl;
 
-		uint t;
-		#pragma omp parallel for num_threads(20)
-		for(t=0;t<20;++t){
-			string seq_str;
-			uint size_local(0),number_local(0),FP_local(0),TP_local(0);
-			while(not inUnitigs.eof()){
-
-				#pragma omp critical(read_file)
-				{
-					getline(inUnitigs,useless);
-					getline(inUnitigs,seq_str);
+		#pragma omp parallel num_threads(20)
+		while (not inFILE.eof()){
+			uint64_t size(0),number(0);
+			uint64_t FP(0),TP(0),FN(0);
+			string fileName;
+			#pragma omp critical(FF)
+			{
+				getline(inFILE,fileName);
+				if(fileName.size()>2){
+					cout<<"I evaluate "+fileName<<endl;
 				}
-				if(not seq_str.empty() and not useless.empty()){
-					size_local+=seq_str.size();
-					number_local++;
-					__uint128_t seq(str2num(seq_str.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-					if(bhash((uint64_t)canon)%nbHash==HASH){
-						if(genomicKmers.count(canon)==0){
-							FP_local++;
-						}else{
-							TP_local++;
-						}
+			}
+			ifstream inUnitigs(fileName);
+			if(fileName.size()<2){
+				continue;
+			}
+
+
+			uint t;
+			#pragma omp parallel for num_threads(20)
+			for(t=0;t<20;++t){
+				string seq_str;
+				uint size_local(0),number_local(0),FP_local(0),TP_local(0);
+				while(not inUnitigs.eof()){
+
+					#pragma omp critical(read_file)
+					{
+						getline(inUnitigs,useless);
+						getline(inUnitigs,seq_str);
 					}
-					for(uint j(0);j+anchorSize<seq_str.size();++j){
-						updateK(seq,seq_str[j+anchorSize]);
-						updateRCK(rcSeq,seq_str[j+anchorSize]);
-						canon=(min(seq, rcSeq));
+					if(not seq_str.empty() and not useless.empty()){
+						size_local+=seq_str.size();
+						number_local++;
+						__uint128_t seq(str2num(seq_str.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
 						if(bhash((uint64_t)canon)%nbHash==HASH){
 							if(genomicKmers.count(canon)==0){
 								FP_local++;
@@ -232,44 +242,60 @@ int main(int argc, char ** argv){
 								TP_local++;
 							}
 						}
+						for(uint j(0);j+anchorSize<seq_str.size();++j){
+							updateK(seq,seq_str[j+anchorSize]);
+							updateRCK(rcSeq,seq_str[j+anchorSize]);
+							canon=(min(seq, rcSeq));
+							if(bhash((uint64_t)canon)%nbHash==HASH){
+								if(genomicKmers.count(canon)==0){
+									FP_local++;
+								}else{
+									TP_local++;
+								}
+							}
+						}
+
 					}
-
 				}
-			}
-			#pragma omp critical(result)
-			{
-				size+=size_local;
-				number+=number_local;
-				FP+=FP_local;
-				TP+=TP_local;
-			}
+				#pragma omp critical(result)
+				{
+					size+=size_local;
+					number+=number_local;
+					FP+=FP_local;
+					TP+=TP_local;
+				}
 
+			}
+			inUnitigs.clear();
+			inUnitigs.seekg(0, std::ios::beg);
+			inRef.clear();
+			inRef.seekg(0, std::ios::beg);
+			FN=genomicKmersNum-TP;
+			#pragma omp critical(output)
+			{
+				cout<<"\nUnitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
+				cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
+				cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
+				cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
+				cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
+				cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
+				cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
+				auto end = chrono::system_clock::now();
+				chrono::duration<double> elapsed_seconds = end - start;
+				time_t end_time = chrono::system_clock::to_time_t(end);
+				cout << "Finished pass at " << ctime(&end_time)<< "Elapsed time: " << elapsed_seconds.count() << "s\n";
+				cout<<"It was "+fileName<<"\n\n"<<endl;
+			}
 		}
-		inUnitigs.clear();
-		inUnitigs.seekg(0, std::ios::beg);
-		inRef.clear();
-		inRef.seekg(0, std::ios::beg);
-		FN=genomicKmersNum-TP;
-		cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
-		cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
-		cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
-		cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
-		cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
-		cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
-		cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
-		auto end = chrono::system_clock::now();
-		chrono::duration<double> elapsed_seconds = end - start;
-		time_t end_time = chrono::system_clock::to_time_t(end);
-		cout << "\nFinished pass at " << ctime(&end_time)<< "Elapsed time: " << elapsed_seconds.count() << "s\n";
 	}
-	FN=genomicKmersNum-TP;
-	cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
-	cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
-	cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
-	cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
-	cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
-	cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
-	cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
+	//~ FN=genomicKmersNum-TP;
+	//~ cout<<"Unitig number: "<<intToString(number)<< " Total size: "<<intToString(size)<<" Mean: "<<intToString(size/number)<<endl;
+	//~ cout<<"Genomic kmer in the reference: "<<intToString(genomicKmersNum)<<endl;
+	//~ cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
+	//~ cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
+	//~ cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
+	//~ cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
+	//~ cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
 
 	auto end = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
