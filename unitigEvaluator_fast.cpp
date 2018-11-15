@@ -196,49 +196,55 @@ int main(int argc, char ** argv){
 				}
 			}
 		}
+		cout<<"Ref indexed"<<endl;
 
-		while(not inUnitigs.eof()){
-			getline(inUnitigs,useless);
-			getline(inUnitigs,ref);
-			if(not ref.empty() and not useless.empty()){
-				size+=ref.size();
-				number++;
-				__uint128_t seq(str2num(ref.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-				if(bhash((uint64_t)canon)%nbHash==HASH){
-					if(genomicKmers.count(canon)==0){
-						FP++;
-					}else{
-						TP++;
-					}
+		uint t;
+		#pragma omp parallel for num_threads(20)
+		for(t=0;t<20;++t){
+			string seq_str;
+			uint size_local(0),number_local(0),FP_local(0),TP_local(0);
+			while(not inUnitigs.eof()){
+
+				#pragma omp critical(read_file)
+				{
+					getline(inUnitigs,useless);
+					getline(inUnitigs,seq_str);
 				}
-				for(uint j(0);j+anchorSize<ref.size();++j){
-					updateK(seq,ref[j+anchorSize]);
-					updateRCK(rcSeq,ref[j+anchorSize]);
-					canon=(min(seq, rcSeq));
+				if(not seq_str.empty() and not useless.empty()){
+					size_local+=seq_str.size();
+					number_local++;
+					__uint128_t seq(str2num(seq_str.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
 					if(bhash((uint64_t)canon)%nbHash==HASH){
 						if(genomicKmers.count(canon)==0){
-							FP++;
+							FP_local++;
 						}else{
-							TP++;
+							TP_local++;
 						}
 					}
-				}
+					for(uint j(0);j+anchorSize<seq_str.size();++j){
+						updateK(seq,seq_str[j+anchorSize]);
+						updateRCK(rcSeq,seq_str[j+anchorSize]);
+						canon=(min(seq, rcSeq));
+						if(bhash((uint64_t)canon)%nbHash==HASH){
+							if(genomicKmers.count(canon)==0){
+								FP_local++;
+							}else{
+								TP_local++;
+							}
+						}
+					}
 
-				//~ for(uint i(0);i+k<=ref.size();++i){
-					//~ if(str2num(getCanonical(ref.substr(i,k)))%nbHash==HASH){
-						//~ if(genomicKmers.count(getCanonical(ref.substr(i,k)))==0){
-							//~ FP++;
-						//~ }else{
-							//~ if(not genomicKmers[getCanonical(ref.substr(i,k))]){
-								//~ genomicKmers[getCanonical(ref.substr(i,k))]=true;
-								//~ TP++;
-							//~ }
-						//~ }
-					//~ }
-				//~ }
+				}
 			}
+			#pragma omp critical(result)
+			{
+				size+=size_local;
+				number+=number_local;
+				FP+=FP_local;
+				TP+=TP_local;
+			}
+
 		}
-		//~ cout<<genomicKmers.size()<<endl;
 		inUnitigs.clear();
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();
