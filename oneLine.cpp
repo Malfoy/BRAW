@@ -43,18 +43,23 @@ void clean(string& str){
 
 int main(int argc, char ** argv){
 	if(argc<2){
-		cout<<"[Fasta file] [clean]"<<endl;
+		cout<<"[Fasta file] (1 for cleaning) (minimum size)"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
 	bool cleaning(false);
 	if(argc>2){
-		cleaning=true;
+		if(string(argv[2])=="1"){
+			cleaning=true;
+		}
+	}
+	uint min_size(0);
+	if(argc>3){
+		min_size=(stoi(argv[3]));
 	}
 	srand (time(NULL));
 	string header, sequence,line;
 	ifstream in(input);
-	vector<uint> lengths;
 	while(not in.eof()){
 		getline(in,header);
 		if(header[0]!='>'){continue;}
@@ -66,11 +71,13 @@ int main(int argc, char ** argv){
 		}
 		if(cleaning){
 			clean(sequence);
-			if(not sequence.empty()){
+			if(sequence.size()>min_size){
 				cout<<header<<'\n'<<sequence<<"\n";
 			}
 		}else{
-			cout<<header<<'\n'<<sequence<<"\n";
+			if(sequence.size()>min_size){
+				cout<<header<<'\n'<<sequence<<"\n";
+			}
 		}
 		sequence="";
 	}

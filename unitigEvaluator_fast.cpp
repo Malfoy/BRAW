@@ -7,7 +7,8 @@
 #include <chrono>
 #include <unordered_set>
 #include <functional>
-
+#include <mutex>
+#include <array>
 #include <unordered_map>
 
 
@@ -134,9 +135,9 @@ void updateRCK(__uint128_t& min, char nuc){
 
 struct KeyHasher
 {
-  std::size_t operator()(const __uint128_t& k) const
+  std::size_t operator()(__uint128_t y) const
   {
-    return k;
+    y^=(y<<13); y^=(y>>17); return (y^=(y<<15));
   }
 };
 
@@ -148,7 +149,7 @@ hash<uint64_t> bhash;
 
 int main(int argc, char ** argv){
 	if(argc<4){
-		cout<<"[unitig file] [reference file] [k value] [n for 2^n pass]"<<endl;
+		cout<<"[FILE file] [reference file] [k value] [n for 2^n pass]"<<endl;
 		exit(0);
 	}
 	auto start = chrono::system_clock::now();
@@ -165,7 +166,6 @@ int main(int argc, char ** argv){
 	uint nbHash=1<<n;
 	//~ cout<<"number of pass"<<nbHash<<endl;
 	srand (time(NULL));
-	string ref, useless;
 	ifstream inRef(inputRef),inFILE(inputFILE);
 	if(not inRef.good()){
 		cout<<"Problem with ref file opening"<<endl;
@@ -177,27 +177,49 @@ int main(int argc, char ** argv){
 		exit(1);
 	}
 	uint64_t genomicKmersNum(0);
-	for(uint HASH(0);HASH<nbHash;++HASH){
-		unordered_map<__uint128_t, bool,KeyHasher> genomicKmers;
+	vector<unordered_map<__uint128_t, bool,KeyHasher>> genomicKmers;
+	array<mutex, 1024> nutex;
+	genomicKmers.resize(nbHash);
+	//~ for(uint HASH(0);HASH<nbHash;++HASH)
+	{
+
+		#pragma omp parallel num_threads(20)
 		while(not inRef.eof()){
-			getline(inRef,useless);
-			getline(inRef,ref);
+			string ref, useless;
+			#pragma omp critical(file_ref)
+			{
+				getline(inRef,useless);
+				getline(inRef,ref);
+			}
 			if(not ref.empty() and not useless.empty()){
 				__uint128_t seq(str2num(ref.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-				if(bhash((uint64_t)canon)%nbHash==HASH){
-					genomicKmers[canon]=true;
-					genomicKmersNum++;
+				uint Hache(bhash((uint64_t)canon)%nbHash);
+				//~ #pragma omp critical(Hache)
+				{
+					nutex[Hache].lock();
+					//~ cout<<Hache<<endl;
+					genomicKmers[Hache][canon]=true;
+					nutex[Hache].unlock();
 				}
+				#pragma omp atomic
+				genomicKmersNum++;
 				for(uint j(0);j+anchorSize<ref.size();++j){
 					updateK(seq,ref[j+anchorSize]);
 					updateRCK(rcSeq,ref[j+anchorSize]);
 					canon=(min(seq, rcSeq));
-					if(bhash((uint64_t)canon)%nbHash==HASH){
-						genomicKmers[canon]=true;
-						genomicKmersNum++;
+					uint Hache(bhash((uint64_t)canon)%nbHash);
+					//~ #pragma omp critical(Hache)
+					{
+						nutex[Hache].lock();
+						genomicKmers[Hache][canon]=true;
+						nutex[Hache].unlock();
 					}
+					#pragma omp atomic
+					genomicKmersNum++;
 				}
 			}
+			//~ if((genomicKmersNum/1000)%100==0)
+				//~ cout<<genomicKmersNum<<endl;
 		}
 		cout<<"Ref indexed"<<endl;
 
@@ -222,7 +244,7 @@ int main(int argc, char ** argv){
 			uint t;
 			#pragma omp parallel for num_threads(20)
 			for(t=0;t<20;++t){
-				string seq_str;
+				string seq_str,useless;
 				uint size_local(0),number_local(0),FP_local(0),TP_local(0);
 				while(not inUnitigs.eof()){
 
@@ -235,24 +257,26 @@ int main(int argc, char ** argv){
 						size_local+=seq_str.size();
 						number_local++;
 						__uint128_t seq(str2num(seq_str.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-						if(bhash((uint64_t)canon)%nbHash==HASH){
-							if(genomicKmers.count(canon)==0){
+						//~ if(bhash((uint64_t)canon)%nbHash==HASH
+							uint Hache(bhash((uint64_t)canon)%nbHash);
+							if(genomicKmers[Hache].count(canon)==0){
 								FP_local++;
 							}else{
 								TP_local++;
 							}
-						}
+						//~ }
 						for(uint j(0);j+anchorSize<seq_str.size();++j){
 							updateK(seq,seq_str[j+anchorSize]);
 							updateRCK(rcSeq,seq_str[j+anchorSize]);
 							canon=(min(seq, rcSeq));
-							if(bhash((uint64_t)canon)%nbHash==HASH){
-								if(genomicKmers.count(canon)==0){
+							uint Hache(bhash((uint64_t)canon)%nbHash);
+							//~ if(bhash((uint64_t)canon)%nbHash==HASH){
+								if(genomicKmers[Hache].count(canon)==0){
 									FP_local++;
 								}else{
 									TP_local++;
 								}
-							}
+							//~ }
 						}
 
 					}
