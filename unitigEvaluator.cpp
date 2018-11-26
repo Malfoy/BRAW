@@ -109,6 +109,7 @@ int main(int argc, char ** argv){
         omp_init_lock(&(lock[i]));
 
 	for(uint HASH(0);HASH<nbHash;++HASH){
+
 		vector<sparse_hash_map<string, bool>> genomicKmers;
 		genomicKmers.resize(1024);
 
@@ -122,6 +123,10 @@ int main(int argc, char ** argv){
 					getline(inRef,ref);
 				}
 				if(not ref.empty() and not useless.empty()){
+          if (useless[0] != '>') 
+				  {
+  					  cout << "reference file needs to be oneline'd (use BRAW/oneLine)" << endl; cout << useless << endl; exit(1);
+	   			} 
 					for(uint i(0);i+k<=ref.size();++i){
 						canon=(getCanonical(ref.substr(i,k)));
 						uint64_t num((str2num(canon)));
@@ -131,12 +136,12 @@ int main(int argc, char ** argv){
 							genomicKmers[num2][canon]=false;
 							omp_unset_lock(&(lock[num2]));
 							#pragma omp atomic update
-							genomicKmersNum++;
-						}
+							//genomicKmersNum++; // this method of determining genomicKmersNum includes duplicates
 					}
 				}
 			}
 		}
+
 
 		#pragma omp parallel num_threads(nb_cores)
 		{
@@ -148,6 +153,10 @@ int main(int argc, char ** argv){
 					getline(inUnitigs,ref);
 				}
 				if(not ref.empty() and not useless.empty()){
+  				if (useless[0] != '>') 
+  				{
+	   				cout << "unitigs file needs to be oneline'd (use BRAW/oneLine)" << endl; exit(1);
+			  	} 
 					#pragma omp atomic
 					size+=ref.size();
 					#pragma omp atomic
@@ -185,6 +194,7 @@ int main(int argc, char ** argv){
 		inUnitigs.seekg(0, std::ios::beg);
 		inRef.clear();
 		inRef.seekg(0, std::ios::beg);
+		genomicKmersNum += genomicKmers.size(); // taking all distinct kmers in the reference
 	}
 	cout<<endl<<"FINAL RESULTS:"<<endl;
 	cout<<genomicKmersNum<<" "<<TP<<endl;
