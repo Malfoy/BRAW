@@ -1,18 +1,8 @@
 #~ CC=/usr/bin/g++
 CC=g++
-CFLAGS=  -Wall -Wextra  -Ofast -std=c++11  -pthread -pipe -Isparsepp -fopenmp
-LDFLAGS=-pthread -Isparsepp -fopenmp
+CFLAGS= -Wall -Ofast -std=c++11  -flto -pipe -funit-at-a-time -fopenmp -lz -Isparsepp -flto
+LDFLAGS=-flto -lpthread -fopenmp -lz  -Isparsepp  -flto
 
-
-ifeq ($(gprof),1)
-CFLAGS=-std=c++0x -pg -O3  -march=native
-LDFLAGS=-pg
-endif
-
-ifeq ($(valgrind),1)
-CFLAGS=-std=c++0x -O3 -g
-LDFLAGS=-g
-endif
 
 
 EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter
@@ -81,7 +71,10 @@ seqToFa:   seqToFa.o
 seqToFa.o: seqToFa.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-interleaver:   interleaver.o
+interleaver.o: interleaver.cpp zstr.hpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+interleaver:  interleaver.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 RC:   RC.o
