@@ -10,6 +10,7 @@
 using namespace std;
 
 
+
 string intToString(uint64_t n){
 	if(n<1000){
 		return to_string(n);
@@ -41,9 +42,16 @@ int main(int argc, char ** argv){
 	}
 	vector<uint> lengths;
 	uint64_t size(0);
+	char c;
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
+		c=in.peek();
+			while(c!='>' and not in.eof()){
+				getline(in,useless);
+				ref+=useless;
+				c=in.peek();
+			}
 		if(not ref.empty() and not useless.empty()){
 			lengths.push_back(ref.size());
 			size+=ref.size();
@@ -70,5 +78,6 @@ int main(int argc, char ** argv){
 	cout<<"N75: "<<N[1]<<"		"<<"L75: "<<L[1]<<endl;
 	cout<<"N90: "<<N[2]<<"		"<<"L90: "<<L[2]<<endl;
 	cout<<"N99: "<<N[3]<<"		"<<"L99: "<<L[3]<<endl;
+	cout<<"Average: "<<intToString(size/lengths.size())<<endl;
 
 }

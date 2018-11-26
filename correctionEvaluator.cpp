@@ -89,11 +89,11 @@ int main(int argc, char *argv[]) {
 				if(e!=c){
 					//False positive
 					++FP;
-					cout<<"W";
+					//~ cout<<"W";
 					perfectlyCorrected=false;
 				}else{
 					++TN;
-					cout<<" ";
+					//~ cout<<" ";
 				}
 			}else{
 				//ERROR
@@ -102,24 +102,24 @@ int main(int argc, char *argv[]) {
 					//true positive
 					corrected=true;
 					++TP;
-					cout<<" ";
+					//~ cout<<" ";
 				}else{
 					if(c==e){
 						//false negative
 						perfectlyCorrected=false;
 						++FN;
-						cout<<"n";
+						//~ cout<<"n";
 					}else{
 						//False positive
 						perfectlyCorrected=false;
 						wrongCorrection=true;
 						++FP;
-						cout<<"w";
+						//~ cout<<"w";
 					}
 				}
 			}
 		}
-		cout<<endl;cin.get();
+		//~ cout<<endl;cin.get();
 		if(perfectlyCorrected){
 			perfectReads++;
 		}

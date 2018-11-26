@@ -72,11 +72,13 @@ int main(int argc, char ** argv){
 		if(cleaning){
 			clean(sequence);
 			if(sequence.size()>min_size){
-				cout<<header<<'\n'<<sequence<<"\n";
+				cout<<header<<'\n'<<sequence.substr(0,sequence.size()/2)<<"\n";
+				cout<<header<<'\n'<<sequence.substr(sequence.size()/2)<<"\n";
 			}
 		}else{
 			if(sequence.size()>min_size){
-				cout<<header<<'\n'<<sequence<<"\n";
+				cout<<header<<'\n'<<sequence.substr(0,sequence.size()/2)<<"\n";
+				cout<<header<<'\n'<<sequence.substr(sequence.size()/2)<<"\n";
 			}
 		}
 		sequence="";
