@@ -5,7 +5,7 @@ LDFLAGS=-flto -lpthread -fopenmp -lz  -Isparsepp  -flto
 
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter
+EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter clean_homopoly
 
 all: $(EXEC)
 
@@ -15,6 +15,12 @@ read_splitter:   read_splitter.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 read_splitter.o: read_splitter.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+clean_homopoly:   clean_homopoly.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+clean_homopoly.o: clean_homopoly.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 getReadsFromHeader:   getReadsFromHeader.o
