@@ -75,14 +75,16 @@ int main(int argc, char *argv[]) {
 		//~ getline(cStream,correctedRead);
 		correctedRead=getLineFasta(&cStream);
 
-		while(true){
+		bool ok(false);
+		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 			erroneousRead=getLineFasta(&eStream);
 			perfectRead=getLineFasta(&pstream);
 			if(correctedRead.second==perfectRead.second){
+				ok=true;
 				break;
 			}
 		}
-
+		if(not ok){break;}
 		bool perfectlyCorrected(true);
 		bool corrected(false);
 		bool wrongCorrection(false);
