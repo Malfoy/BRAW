@@ -33,9 +33,9 @@ string intToString(uint64_t n){
 }
 
 
-string getLineFasta(ifstream* in){
-	string line,result;
-	getline(*in,line);
+pair<string,string> getLineFasta(ifstream* in){
+	string line,result,header;
+	getline(*in,header);
 	char c=in->peek();
 	while(c!='>' and c!=EOF){
 		getline(*in,line);
@@ -43,7 +43,7 @@ string getLineFasta(ifstream* in){
 		c=in->peek();
 	}
 	transform(result.begin(), result.end(), result.begin(), ::toupper);
-	return result;
+	return {result,header};
 }
 
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	string perfect(argv[1]);
 	string erroneous(argv[2]);
 	string corrected((argv[3]));
-	string perfectRead,erroneousRead,correctedRead,useless;
+	pair<string,string> perfectRead,erroneousRead,correctedRead;
 	ifstream pstream(perfect);
 	ifstream eStream(erroneous);
 	ifstream cStream(corrected);
@@ -73,17 +73,24 @@ int main(int argc, char *argv[]) {
 		//~ getline(pstream,perfectRead);
 		//~ getline(eStream,erroneousRead);
 		//~ getline(cStream,correctedRead);
-		erroneousRead=getLineFasta(&eStream);
-		perfectRead=getLineFasta(&pstream);
 		correctedRead=getLineFasta(&cStream);
+
+		while(true){
+			erroneousRead=getLineFasta(&eStream);
+			perfectRead=getLineFasta(&pstream);
+			if(correctedRead.second==perfectRead.second){
+				break;
+			}
+		}
+
 		bool perfectlyCorrected(true);
 		bool corrected(false);
 		bool wrongCorrection(false);
-		for(uint i(0);i<perfectRead.size();++i){
+		for(uint i(0);i<perfectRead.first.size();++i){
 			++nuc;
-			char p(perfectRead[i]);
-			char e(erroneousRead[i]);
-			char c(correctedRead[i]);
+			char p(perfectRead.first[i]);
+			char e(erroneousRead.first[i]);
+			char c(correctedRead.first[i]);
 			if(p==e){
 				//NO ERROR
 				if(e!=c){
