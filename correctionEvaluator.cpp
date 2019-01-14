@@ -52,9 +52,13 @@ int main(int argc, char *argv[]) {
 	if(argc<3){
 		help();
 		exit(0);
+
+	}bool intermediary=false;
+	if(argc>4){
+		intermediary=true;
 	}
 	bool pretty_printing(false);
-	if(argc>4){
+	if(argc>5){
 		pretty_printing=true;
 	}
 	uint freq_print_reads(1000);
@@ -147,7 +151,7 @@ int main(int argc, char *argv[]) {
 		if(corrected and not wrongCorrection){
 			readImproved++;
 		}
-		if(reads%freq_print_reads==0){
+		if(intermediary and reads%freq_print_reads==0){
 			cout<<"INTERMEDIARY RESULTS: "<<reads<<" reads"<<endl;
 			cout<<"False positive, inserted errors: ";
 			cout<<intToString(FP)<<endl;
