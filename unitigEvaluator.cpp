@@ -130,7 +130,7 @@ int main(int argc, char ** argv){
 							omp_set_lock(&(lock[num2]));
 							genomicKmers[num2][canon]=false;
 							omp_unset_lock(&(lock[num2]));
-							#pragma omp atomic update
+							#pragma omp atomic
 							genomicKmersNum++;
 						}
 					}
