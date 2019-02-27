@@ -104,8 +104,8 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 
 
 int main(int argc, char ** argv){
-	if(argc<5){
-		cout<<"[read file] [error rate] [prefix] [LR]"<<endl;
+	if(argc<4){
+		cout<<"[read file] [error rate] [prefix]"<<endl;
 		exit(0);
 	}
 	bool long_reads(false);
@@ -121,7 +121,7 @@ int main(int argc, char ** argv){
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,read);
-		if(not ref.empty() and not useless.empty()){
+		if(not read.empty() and not useless.empty()){
 			for(uint i(0);i<read.size();++i){
 				//~ if(read[i]=='N' or read[i]=='n'){valid=false;break;}
 				if(xs(seed)%10000<=errorRate){
