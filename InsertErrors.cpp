@@ -21,8 +21,9 @@ inline uint32_t xs ( uint32_t x ) {
 
 
 char randNucle(char c='N'){
-	//~ switch (rand()%4){
-	switch (xs(seed)%4){
+	switch (rand()%4){
+	//~ seed=xs(seed)%4
+	//~ switch (seed){
 		case 0:
 			if(c!='A'){
 				return 'A';
@@ -108,7 +109,6 @@ int main(int argc, char ** argv){
 		cout<<"[read file] [error rate] [prefix]"<<endl;
 		exit(0);
 	}
-	bool long_reads(false);
 
 	string input(argv[1]);
 	srand (time(NULL));
@@ -116,7 +116,7 @@ int main(int argc, char ** argv){
 	uint errorRate((stof(argv[2]))*10000);
 	string prefix(argv[3]);
 	string useless, ref,read,pread;
-	uint i(0);
+	uint indice_header(0);
 	ofstream out(prefix+".fa");
 	while(not in.eof()){
 		getline(in,useless);
@@ -128,7 +128,8 @@ int main(int argc, char ** argv){
 					read[i]=randNucle(read[i]);
 				}
 			}
-			out<<">"+to_string(i)<<"\n";
+			out<<">"+to_string(indice_header)<<"\n";
+			indice_header++;
 			out<<read<<"\n";
 		}
 	}
