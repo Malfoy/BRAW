@@ -60,7 +60,7 @@ int main(int argc, char ** argv){
 	sort(lengths.begin(),lengths.end(),greater<uint>());
 
 	cout<<"#contigs: "<<intToString(lengths.size())<<endl;
-	cout<<"Total size: "<<intToString(size)<<endl;
+	cout<<"Total size: "<<intToString(size) <<" bases (or "<<intToString(size-30*lengths.size())<<" 31mer)"<<endl;
 
 	vector<double> proportions_to_compute({0.5,0.75,0.9,0.99});
 	vector<string> N,L;
@@ -74,7 +74,7 @@ int main(int argc, char ** argv){
 		N.push_back(intToString(lengths[i-1]));
 		L.push_back(intToString(i));
 	}
-	cout<<"N50: "<<N[0]<<"		"<<"L50: "<<L[1]<<endl;
+	cout<<"N50: "<<N[0]<<"		"<<"L50: "<<L[0]<<endl;
 	cout<<"N75: "<<N[1]<<"		"<<"L75: "<<L[1]<<endl;
 	cout<<"N90: "<<N[2]<<"		"<<"L90: "<<L[2]<<endl;
 	cout<<"N99: "<<N[3]<<"		"<<"L99: "<<L[3]<<endl;

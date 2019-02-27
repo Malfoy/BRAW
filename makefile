@@ -5,11 +5,21 @@ LDFLAGS=-flto -lpthread -fopenmp -lz  -Isparsepp  -flto
 
 
 
-EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter clean_homopoly
+EXEC=refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter clean_homopoly Harry_cover insertErrors
 
 all: $(EXEC)
 
+insertErrors:   insertErrors.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
+insertErrors.o: InsertErrors.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+Harry_cover:   Harry_cover.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+Harry_cover.o: Harry_Cover.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 read_splitter:   read_splitter.o
 	$(CC) -o $@ $^ $(LDFLAGS)
