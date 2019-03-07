@@ -9,7 +9,7 @@
 using namespace std;
 
 
-static unsigned int seed;
+//~ static unsigned int seed;
 
 inline uint32_t xs ( uint32_t x ) {
 	x = ( ( x >> 16 ) ^ x ) * 0x2c1b3c6d;
@@ -69,7 +69,6 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 		double deletionRate(mutRate * ratioMutation[2]);
 		uint dice(rand() % 100);
 
-
 		if (dice <substitutionRate ){
 			//SUBSTITUTION
 			char newNucleotide(randNucle());
@@ -123,8 +122,7 @@ int main(int argc, char ** argv){
 		getline(in,read);
 		if(not read.empty() and not useless.empty()){
 			for(uint i(0);i<read.size();++i){
-				//~ if(read[i]=='N' or read[i]=='n'){valid=false;break;}
-				if(xs(seed)%10000<=errorRate){
+				if((uint32_t)rand()%10000<=errorRate){
 					read[i]=randNucle(read[i]);
 				}
 			}
