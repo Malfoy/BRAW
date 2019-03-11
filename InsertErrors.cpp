@@ -126,7 +126,7 @@ int main(int argc, char ** argv){
 					read[i]=randNucle(read[i]);
 				}
 			}
-			out<<">"+to_string(indice_header)<<"\n";
+			out<<useless<<"\n";
 			indice_header++;
 			out<<read<<"\n";
 		}
