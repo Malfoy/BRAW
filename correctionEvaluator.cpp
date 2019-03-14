@@ -15,7 +15,7 @@ using namespace std;
 
 
 void help(){
-	cout<<"./correctionEvaluator perfectReads.fa erroneousReads.fa correctedReads.fa  "<<endl;
+	cout<<"./correctionEvaluator perfectReads.fa erroneousReads.fa correctedReads.fa missing_reads(false)"<<endl;
 }
 
 string intToString(uint64_t n){
@@ -53,12 +53,17 @@ int main(int argc, char *argv[]) {
 		help();
 		exit(0);
 
-	}bool intermediary=false;
+	}
+	bool missing_reads=false;
 	if(argc>4){
+		missing_reads=true;
+	}
+	bool intermediary=false;
+	if(argc>5){
 		intermediary=true;
 	}
 	bool pretty_printing(false);
-	if(argc>5){
+	if(argc>6){
 		pretty_printing=true;
 	}
 	uint freq_print_reads(1000);
@@ -82,7 +87,7 @@ int main(int argc, char *argv[]) {
 		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 			erroneousRead=getLineFasta(&eStream);
 			perfectRead=getLineFasta(&pstream);
-			if(correctedRead.second==perfectRead.second){
+			if(correctedRead.second==perfectRead.second or not missing_reads){
 				ok=true;
 				break;
 			}else{
