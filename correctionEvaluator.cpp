@@ -48,6 +48,18 @@ pair<string,string> getLineFasta(ifstream* in){
 
 
 
+pair<string,string> getLineFastQ(ifstream* in){
+	string line,result,header,useless;
+	getline(*in,header);
+	getline(*in,line);
+	getline(*in,useless);
+	getline(*in,useless);
+	transform(result.begin(), result.end(), result.begin(), ::toupper);
+	return {result,header};
+}
+
+
+
 int main(int argc, char *argv[]) {
 	if(argc<3){
 		help();
@@ -68,8 +80,12 @@ int main(int argc, char *argv[]) {
 	}
 	uint freq_print_reads(1000);
 	string perfect(argv[1]);
+	bool perfect_FQ(perfect[perfect.size()-1]=='q');
 	string erroneous(argv[2]);
+	bool erroneous_FQ(erroneous[erroneous.size()-1]=='q');
 	string corrected((argv[3]));
+	bool corrected_FQ(corrected[corrected.size()-1]=='q');
+
 	pair<string,string> perfectRead,erroneousRead,correctedRead;
 	ifstream pstream(perfect);
 	ifstream eStream(erroneous);
@@ -81,12 +97,12 @@ int main(int argc, char *argv[]) {
 	}
 	while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 		reads++;
-		correctedRead=getLineFasta(&cStream);
+		correctedRead=corrected_FQ?getLineFastQ(&cStream):getLineFasta(&cStream);
 
 		bool ok(false);
 		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
-			erroneousRead=getLineFasta(&eStream);
-			perfectRead=getLineFasta(&pstream);
+			erroneousRead=erroneous_FQ?getLineFastQ(&eStream):getLineFasta(&eStream);
+			perfectRead=perfect_FQ?getLineFastQ(&pstream):getLineFasta(&pstream);
 			if(correctedRead.second==perfectRead.second or not missing_reads){
 				ok=true;
 				break;
@@ -97,6 +113,7 @@ int main(int argc, char *argv[]) {
 		bool perfectlyCorrected(true);
 		bool corrected(false);
 		bool wrongCorrection(false);
+		string to_print;
 		for(uint i(0);i<perfectRead.first.size();++i){
 			++nuc;
 			char p(perfectRead.first[i]);
@@ -108,13 +125,13 @@ int main(int argc, char *argv[]) {
 					//False positive
 					++FP;
 					if(pretty_printing){
-						cout<<"W";
+						to_print+="W";
 					}
 					perfectlyCorrected=false;
 				}else{
 					++TN;
 					if(pretty_printing){
-						cout<<" ";
+						to_print+=" ";
 					}
 				}
 			}else{
@@ -125,7 +142,7 @@ int main(int argc, char *argv[]) {
 					corrected=true;
 					++TP;
 					if(pretty_printing){
-						cout<<" ";
+						to_print+=" ";
 					}
 				}else{
 					if(c==e){
@@ -133,7 +150,7 @@ int main(int argc, char *argv[]) {
 						perfectlyCorrected=false;
 						++FN;
 						if(pretty_printing){
-							cout<<"n";
+							to_print+="n";
 						}
 					}else{
 						//False positive
@@ -141,17 +158,21 @@ int main(int argc, char *argv[]) {
 						wrongCorrection=true;
 						++FP;
 						if(pretty_printing){
-							cout<<"w";
+							to_print+="w";
 						}
 					}
 				}
 			}
 		}
-		if(pretty_printing){
-			cout<<"\\ \n";
+		if(pretty_printing and not perfectlyCorrected){
+			to_print+="\\ \n";
+			cout<<to_print;
 		}
 		if(perfectlyCorrected){
 			perfectReads++;
+		}else{
+			cerr<<">lol\n";
+			cerr<<erroneousRead.first<<"\n";
 		}
 		if(corrected and not wrongCorrection){
 			readImproved++;
