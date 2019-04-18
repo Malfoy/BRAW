@@ -123,7 +123,10 @@ int main(int argc, char ** argv){
 				}
 				if(not ref.empty() and not useless.empty()){
 					for(uint i(0);i+k<=ref.size();++i){
-						canon=(getCanonical(ref.substr(i,k)));
+						std::string kmer = ref.substr(i,k);
+			                        if (kmer.find("N") != std::string::npos) // disregard kmers containing N's
+                        				continue;
+						canon=(getCanonical(kmer));
 						uint64_t num((str2num(canon)));
 						if(num%nbHash==HASH){
 							uint64_t num2( (num/nbHash)%1024);
