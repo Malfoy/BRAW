@@ -171,8 +171,8 @@ int main(int argc, char *argv[]) {
 		if(perfectlyCorrected){
 			perfectReads++;
 		}else{
-			cerr<<">lol\n";
-			cerr<<erroneousRead.first<<"\n";
+			//~ cerr<<">lol\n";
+			//~ cerr<<erroneousRead.first<<"\n";
 		}
 		if(corrected and not wrongCorrection){
 			readImproved++;
@@ -210,19 +210,25 @@ int main(int argc, char *argv[]) {
 			freq_print_reads*=10;
 		}
 	}
-	cout<<"FINAL RESULTS: "<<reads<<" reads"<<endl;
+	cout<<"FINAL RESULTS: "<<intToString(reads)<<" reads"<<endl;
 	cout<<"False positive, inserted errors: ";
 	cout<<intToString(FP)<<endl;
 	cout<<"False Negative, non corrected errors: ";
 	cout<<intToString(FN)<<endl;
 	cout<<"True Positive, corrected errors: ";
 	cout<<intToString(TP)<<endl;
-	cout<<"Sensitivity: ";
+	cout<<endl;
+	cout<<"Recall: ";
 	cout<<(double)(100*TP)/(TP+FN)<<endl;
 	cout<<"Precision: ";
 	cout<<(double)(100*TP)/(TP+FP)<<endl;
-	cout<<"Specificity: ";
-	cout<<(double)(100*TN)/(TN+FP)<<endl;
+	//~ cout<<"Specificity: ";
+	//~ cout<<(double)(100*TN)/(TN+FP)<<endl;
+	cout<<"F1-score: ";
+	cout<<(double)(100*TP*2)/(2*TP+FN+FP)<<endl;
+	cout<<"Accuracy: ";
+	cout<<(double)(100*(TP+TN))/(TP+FN+FP+TN)<<endl;
+	cout<<endl;
 	cout<<"Errors then ";
 	cout<<intToString(errors)<<endl;
 	cout<<"Errors now ";
@@ -232,6 +238,7 @@ int main(int argc, char *argv[]) {
 	cout<<"Error rate now: ";
 	cout<<(double)(100*(FP+FN))/(nuc)<<endl;
 	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
+	cout<<endl;
 	cout<<"Reads: ";
 	cout<<intToString(reads)<<endl;
 	cout<<"Erroneous reads: ";
