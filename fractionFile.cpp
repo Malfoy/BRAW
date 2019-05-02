@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-
+#include <stdlib.h>
 
 
 using namespace std;
@@ -42,6 +42,8 @@ void clean(string& str){
 
 
 int main(int argc, char ** argv){
+	srand (time(NULL));
+
 	if(argc<2){
 		cout<<"[Fasta file] [fraction]"<<endl;
 		exit(0);
@@ -66,7 +68,7 @@ int main(int argc, char ** argv){
 			sequence+=line;
 			c=in.peek();
 		}
-		if(i++%frac==0){
+		if(rand()%frac==0){
 			if(cleaning){
 				clean(sequence);
 				if(not sequence.empty()){
