@@ -36,6 +36,9 @@ string intToString(uint64_t n){
 pair<string,string> getLineFasta(ifstream* in){
 	string line,result,header;
 	getline(*in,header);
+	if(header[0]!='>'){
+		return getLineFasta(in);
+	}
 	char c=in->peek();
 	while(c!='>' and c!=EOF){
 		getline(*in,line);
@@ -67,15 +70,16 @@ int main(int argc, char *argv[]) {
 
 	}
 	bool missing_reads=false;
-	if(argc>4){
-		missing_reads=true;
-	}
+	//~ if(argc>4){
+		//~ missing_reads=true;
+	//~ }
 	bool intermediary=false;
 	if(argc>5){
 		intermediary=true;
 	}
 	bool pretty_printing(false);
 	if(argc>6){
+			cout<<"GO"<<endl;
 		pretty_printing=true;
 	}
 	uint freq_print_reads(1000);
@@ -98,7 +102,7 @@ int main(int argc, char *argv[]) {
 	while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 		reads++;
 		correctedRead=corrected_FQ?getLineFastQ(&cStream):getLineFasta(&cStream);
-
+		//~ cout<<"aller"<<endl;
 		bool ok(false);
 		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 			erroneousRead=erroneous_FQ?getLineFastQ(&eStream):getLineFasta(&eStream);
@@ -167,8 +171,13 @@ int main(int argc, char *argv[]) {
 		if(pretty_printing and not perfectlyCorrected){
 			to_print+="\\ \n";
 			cout<<to_print;
+			cout<<perfectRead.first<<endl;
+			cout<<correctedRead.first<<endl;
+			cout<<erroneousRead.first<<endl;
+			cin.get();
 		}
 		if(perfectlyCorrected){
+			//~ cout<<"p";
 			perfectReads++;
 		}else{
 			//~ cerr<<">lol\n";
