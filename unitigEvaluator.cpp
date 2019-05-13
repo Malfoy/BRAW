@@ -10,6 +10,7 @@
 #include <omp.h>
 
 
+
 using spp::sparse_hash_map;
 
 
@@ -18,7 +19,10 @@ uint64_t xs(uint64_t y){
 	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
 }
 
+
+
 using namespace std;
+
 
 
 string intToString(uint64_t n){
@@ -123,7 +127,9 @@ int main(int argc, char ** argv){
 				}
 				if(not ref.empty() and not useless.empty()){
 					for(uint i(0);i+k<=ref.size();++i){
+
 						canon=(getCanonical(ref.substr(i,k)));
+						//~ cerr<<canon<<endl;
 						uint64_t num((str2num(canon)));
 						if(num%nbHash==HASH){
 							uint64_t num2( (num/nbHash)%1024);
@@ -135,6 +141,7 @@ int main(int argc, char ** argv){
 						}
 					}
 				}
+				useless=ref="";
 			}
 		}
 
@@ -193,9 +200,12 @@ int main(int argc, char ** argv){
 	cout<<"True positive (kmers in the unitig and the references) 		GOOD kmers:	"<<intToString(TP)<<endl;
 	cout<<"False positive (kmers in the unitig and NOT in the references)	ERRONEOUS kmers:	"<<intToString(FP)<<endl;
 	cout<<"False Negative (kmers NOT in the unitig but in the references)	MISSING kmers:	"<<intToString(FN)<<endl;
-	cout<<"Erroneous kmer rate (*10,000): "<<(double)10000*FP/(FP+TP)<<endl;
-	cout<<"Missing kmer rate (*10,000): "<<(double)10000*FN/genomicKmersNum<<endl;
-
+	cout<<"Recall: ";
+	cout<<(double)(100*TP)/(TP+FN)<<endl;
+	cout<<"Precision: ";
+	cout<<(double)(100*TP)/(TP+FP)<<endl;
+	cout<<"F1-score: ";
+	cout<<(double)(100*TP*2)/(2*TP+FN+FP)<<endl;
 	auto end = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
     time_t end_time = chrono::system_clock::to_time_t(end);
