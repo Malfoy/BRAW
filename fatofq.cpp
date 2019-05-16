@@ -24,12 +24,16 @@ int main(int argc, char ** argv){
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
-		if(not ref.empty() and not useless.empty()){
-			toprint+="@"+useless.substr(1)+"\n"+ref+'\n'+'+'+'\n'+string(ref.size(),'I')+'\n';
-		}
-		if(toprint.size()>10000){
-			cout<<toprint;
-			toprint="";
+		if( not useless.empty()){
+			if(not ref.empty()){
+				toprint+="@"+useless.substr(1)+"\n"+ref+'\n'+'+'+'\n'+string(ref.size(),'I')+'\n';
+			}else{
+				toprint+="@"+useless.substr(1)+"\n"+ref+'\n'+'+'+'\n'+string(ref.size(),'I')+'\n';
+			}
+			if(toprint.size()>10000){
+				cout<<toprint;
+				toprint="";
+			}
 		}
 	}
 	cout<<toprint;
