@@ -26,9 +26,14 @@ int main(int argc, char ** argv){
 		getline(in,ref);
 		getline(in,useless);
 		getline(in,useless);
-		if(ref.size()>1){
-			cout<<">"+header<<endl;
-			cout<<ref<<endl;
+		if(header.size()>1){
+			if(ref.size()>1){
+				cout<<">"+header.substr(1)<<"\n";
+				cout<<ref<<"\n";
+			}else{
+				cout<<">"+header.substr(1)<<"\n";
+				cout<<ref<<"\n";
+			}
 		}
 	}
 }
