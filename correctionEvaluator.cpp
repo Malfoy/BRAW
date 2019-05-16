@@ -70,9 +70,9 @@ int main(int argc, char *argv[]) {
 
 	}
 	bool missing_reads=false;
-	//~ if(argc>4){
-		//~ missing_reads=true;
-	//~ }
+	if(argc>4){
+		missing_reads=true;
+	}
 	bool intermediary=false;
 	if(argc>5){
 		intermediary=true;
@@ -102,12 +102,13 @@ int main(int argc, char *argv[]) {
 	while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 		reads++;
 		correctedRead=corrected_FQ?getLineFastQ(&cStream):getLineFasta(&cStream);
-		//~ cout<<"aller"<<endl;
 		bool ok(false);
 		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
 			erroneousRead=erroneous_FQ?getLineFastQ(&eStream):getLineFasta(&eStream);
 			perfectRead=perfect_FQ?getLineFastQ(&pstream):getLineFasta(&pstream);
+			//~ cout<<correctedRead.second<<" "<<perfectRead.second <<endl;
 			if(correctedRead.second==perfectRead.second or not missing_reads){
+
 				ok=true;
 				break;
 			}else{
