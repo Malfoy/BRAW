@@ -45,14 +45,17 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 
 	if(argc<2){
-		cout<<"[Fasta file] [fraction]"<<endl;
+		cout<<"[Fasta file] [fraction] (fastq)"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
-	bool cleaning(false);
+	bool cleaning(false),fastqmode(false);
 	uint frac(10);
 	if(argc>2){
 		frac=stoi(argv[2]);
+	}
+	if(argc>3){
+		fastqmode=true;
 	}
 	srand (time(NULL));
 	string header, sequence,line;
@@ -60,13 +63,20 @@ int main(int argc, char ** argv){
 	vector<uint> lengths;
 	uint i(0);
 	while(not in.eof()){
-		getline(in,header);
-		if(header[0]!='>'){continue;}
-		char c=in.peek();
-		while(c!='>' and c!=EOF){
+		if(fastqmode){
+			getline(in,header);
+			getline(in,sequence);
 			getline(in,line);
-			sequence+=line;
-			c=in.peek();
+			getline(in,line);
+		}else{
+			getline(in,header);
+			if(header[0]!='>'){continue;}
+			char c=in.peek();
+			while(c!='>' and c!=EOF){
+				getline(in,line);
+				sequence+=line;
+				c=in.peek();
+			}
 		}
 		if(rand()%frac==0){
 			if(cleaning){
@@ -75,7 +85,11 @@ int main(int argc, char ** argv){
 					cout<<header<<'\n'<<sequence<<"\n";
 				}
 			}else{
-				cout<<header<<'\n'<<sequence<<"\n";
+				if(header[0]!='>'){
+					cout<<'>'<<header<<'\n'<<sequence<<"\n";
+				}else{
+					cout<<header<<'\n'<<sequence<<"\n";
+				}
 			}
 		}
 		sequence="";
