@@ -71,15 +71,17 @@ int main(int argc, char *argv[]) {
 	}
 	bool missing_reads=false;
 	if(argc>4){
+		cout<<"Missing Reads mode"<<endl;
 		missing_reads=true;
 	}
 	bool intermediary=false;
 	if(argc>5){
+		cout<<"is display intermediary result"<<endl;
 		intermediary=true;
 	}
 	bool pretty_printing(false);
 	if(argc>6){
-			cout<<"GO"<<endl;
+		cout<<"is display EVERYTHING"<<endl;
 		pretty_printing=true;
 	}
 	uint freq_print_reads(1000);
@@ -100,21 +102,20 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
-		reads++;
+
 		correctedRead=corrected_FQ?getLineFastQ(&cStream):getLineFasta(&cStream);
 		bool ok(false);
-		while(not cStream.eof() and not eStream.eof() and not pstream.eof()){
+		while(not eStream.eof() and not pstream.eof()){
 			erroneousRead=erroneous_FQ?getLineFastQ(&eStream):getLineFasta(&eStream);
 			perfectRead=perfect_FQ?getLineFastQ(&pstream):getLineFasta(&pstream);
-			//~ cout<<correctedRead.second<<" "<<perfectRead.second <<endl;
 			if(correctedRead.second==perfectRead.second or not missing_reads){
-
 				ok=true;
 				break;
 			}else{
 			}
 		}
-		if(not ok){break;}
+		if(not ok){continue;}
+		reads++;
 		bool perfectlyCorrected(true);
 		bool corrected(false);
 		bool wrongCorrection(false);
@@ -175,14 +176,10 @@ int main(int argc, char *argv[]) {
 			cout<<perfectRead.first<<endl;
 			cout<<correctedRead.first<<endl;
 			cout<<erroneousRead.first<<endl;
-			cin.get();
 		}
 		if(perfectlyCorrected){
-			//~ cout<<"p";
 			perfectReads++;
 		}else{
-			//~ cerr<<">lol\n";
-			//~ cerr<<erroneousRead.first<<"\n";
 		}
 		if(corrected and not wrongCorrection){
 			readImproved++;
@@ -190,33 +187,40 @@ int main(int argc, char *argv[]) {
 		if(intermediary and reads%freq_print_reads==0){
 			cout<<"INTERMEDIARY RESULTS: "<<reads<<" reads"<<endl;
 			cout<<"False positive, inserted errors: ";
-			cout<<intToString(FP)<<endl;
-			cout<<"False Negative, non corrected errors: ";
-			cout<<intToString(FN)<<endl;
-			cout<<"True Positive, corrected errors: ";
-			cout<<intToString(TP)<<endl;
-			cout<<"Sensitivity: ";
-			cout<<(double)(100*TP)/(TP+FN)<<endl;
-			cout<<"Precision: ";
-			cout<<(double)(100*TP)/(TP+FP)<<endl;
-			cout<<"Specificity: ";
-			cout<<(double)(100*TN)/(TN+FP)<<endl;
-			cout<<"Errors then ";
-			cout<<intToString(errors)<<endl;
-			cout<<"Errors now ";
-			cout<<intToString(FP+FN)<<endl;
-			cout<<"Error rate then: ";
-			cout<<(double)(100*errors)/(nuc)<<endl;
-			cout<<"Error rate now: ";
-			cout<<(double)(100*(FP+FN))/(nuc)<<endl;
-			cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
-			cout<<"Reads: ";
-			cout<<intToString(reads)<<endl;
-			cout<<"Erroneous reads: ";
-			cout<<intToString(reads-perfectReads)<<endl;
-			cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
-			cout<<"Reads improved: ";;
-			cout<<intToString(readImproved)<<endl<<endl;;
+	cout<<intToString(FP)<<endl;
+	cout<<"False Negative, non corrected errors: ";
+	cout<<intToString(FN)<<endl;
+	cout<<"True Positive, corrected errors: ";
+	cout<<intToString(TP)<<endl;
+	cout<<endl;
+	cout<<"Recall: ";
+	cout<<(double)(100*TP)/(TP+FN)<<endl;
+	cout<<"Precision: ";
+	cout<<(double)(100*TP)/(TP+FP)<<endl;
+	//~ cout<<"Specificity: ";
+	//~ cout<<(double)(100*TN)/(TN+FP)<<endl;
+	cout<<"F1-score: ";
+	cout<<(double)(100*TP*2)/(2*TP+FN+FP)<<endl;
+	cout<<"Accuracy: ";
+	cout<<(double)(100*(TP+TN))/(TP+FN+FP+TN)<<endl;
+	cout<<endl;
+	cout<<"Errors then ";
+	cout<<intToString(errors)<<endl;
+	cout<<"Errors now ";
+	cout<<intToString(FP+FN)<<endl;
+	cout<<"Error rate then: ";
+	cout<<(double)(100*errors)/(nuc)<<endl;
+	cout<<"Error rate now: ";
+	cout<<(double)(100*(FP+FN))/(nuc)<<endl;
+	cout<<"Ratio errors then/before:  "<<(double)errors/(FP+FN)<<endl;
+	cout<<endl;
+	cout<<"Reads: ";
+	cout<<intToString(reads)<<endl;
+	cout<<"Erroneous reads: ";
+	cout<<intToString(reads-perfectReads)<<endl;
+	cout<<"Ratio erronenous reads:  "<<(double)100*(reads-perfectReads)/(reads)<<endl;
+	cout<<"Reads improved: ";;
+	cout<<intToString(readImproved)<<endl;
 			freq_print_reads*=10;
 		}
 	}
