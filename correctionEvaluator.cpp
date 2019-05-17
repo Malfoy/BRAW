@@ -75,17 +75,26 @@ int main(int argc, char *argv[]) {
 
 
 	if(argc>5){
-		cout<<"Is display intermediary result"<<endl;
-		intermediary=true;
+		string arg(argv[5]);
+		if(arg!="0"){
+			cout<<"Is display intermediary result"<<endl;
+			intermediary=true;
+		}
 	}
 	if(argc>4){
-		cout<<"Missing Reads mode, The corrected reads are expected to be conserved"<<endl;
-		missing_reads=true;
+		string arg(argv[4]);
+		if(arg!="0"){
+			cout<<"Missing Reads mode, The corrected reads are expected to be conserved"<<endl;
+			missing_reads=true;
+		}
 	}
 
 	if(argc>6){
-		cout<<"is display EVERYTHING"<<endl;
-		pretty_printing=true;
+		string arg(argv[6]);
+		if(arg!="0"){
+			cout<<"is display EVERYTHING"<<endl;
+			pretty_printing=true;
+		}
 	}
 	uint freq_print_reads(1000);
 	string perfect(argv[1]);
