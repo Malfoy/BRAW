@@ -70,16 +70,19 @@ int main(int argc, char *argv[]) {
 
 	}
 	bool missing_reads=false;
-	if(argc>4){
-		cout<<"Missing Reads mode"<<endl;
-		missing_reads=true;
-	}
 	bool intermediary=false;
-	if(argc>5){
-		cout<<"is display intermediary result"<<endl;
+	bool pretty_printing(false);
+
+
+	if(argc>4){
+		cout<<"Is display intermediary result"<<endl;
 		intermediary=true;
 	}
-	bool pretty_printing(false);
+	if(argc>5){
+		cout<<"Missing Reads mode, The corrected reads are expected to be conserved"<<endl;
+		missing_reads=true;
+	}
+
 	if(argc>6){
 		cout<<"is display EVERYTHING"<<endl;
 		pretty_printing=true;
