@@ -74,11 +74,11 @@ int main(int argc, char *argv[]) {
 	bool pretty_printing(false);
 
 
-	if(argc>4){
+	if(argc>5){
 		cout<<"Is display intermediary result"<<endl;
 		intermediary=true;
 	}
-	if(argc>5){
+	if(argc>4){
 		cout<<"Missing Reads mode, The corrected reads are expected to be conserved"<<endl;
 		missing_reads=true;
 	}
