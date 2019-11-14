@@ -4,10 +4,12 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "zstr.hpp"
 
 
 
 using namespace std;
+
 
 
 string getLineFasta(ifstream* in){
@@ -34,32 +36,60 @@ void clean(string& str){
 			case 'G':break;
 			case 't':break;
 			case 'T':break;
-			default: str="";return;
+			case 'N':break;
+			case 'n':break;
+			default: cout<<str[i]<<endl; str[i]='A';return;
 		}
 	}
 	transform(str.begin(), str.end(), str.begin(), ::toupper);
 }
 
 
+
+
+string remove_lowercase(string& str){
+	string res;
+	for(uint i(0); i< str.size(); ++i){
+		switch(str[i]){
+			//~ case 'a':break;
+			case 'A':res+='A';break;
+			//~ case 'c':break;
+			case 'C':res+='C';break;
+			//~ case 'g':break;
+			case 'G':res+='G';break;
+			//~ case 't':break;
+			case 'T':res+='T';break;
+			default:;
+		}
+	}
+	return res;
+}
+
+
+
 int main(int argc, char ** argv){
 	if(argc<2){
-		cout<<"[Fasta file] (1 for cleaning) (minimum size)"<<endl;
+		cout<<"[Fasta file] (1 for cleaning, 2 for header cleaning, 3 for both) (minimum size)"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
-	bool cleaning(false);
+	bool cleaning(false),headercleaning(false);
 	if(argc>2){
-		if(string(argv[2])=="1"){
+		if(string(argv[2])=="1" or string(argv[2])=="3"){
 			cleaning=true;
+		}
+		if(string(argv[2])=="2" or string(argv[2])=="3"){
+			headercleaning=true;
 		}
 	}
 	uint min_size(0);
 	if(argc>3){
 		min_size=(stoi(argv[3]));
 	}
+	//~ uint count(0);
 	srand (time(NULL));
 	string header, sequence,line;
-	ifstream in(input);
+	zstr::ifstream in(input);
 	while(not in.eof()){
 		getline(in,header);
 		if(header[0]!='>'){continue;}
@@ -68,6 +98,9 @@ int main(int argc, char ** argv){
 			getline(in,line);
 			sequence+=line;
 			c=in.peek();
+		}
+		if(headercleaning){
+			header=">a";
 		}
 		if(cleaning){
 			clean(sequence);
