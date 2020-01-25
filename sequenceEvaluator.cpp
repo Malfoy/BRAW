@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <chrono>
 #include "robin_hood.h"
+#include "omp.h"
+
 
 
 
@@ -71,9 +73,12 @@ uint64_t inAnotinB(const robin_hood::unordered_map<string,bool>& A, const robin_
 
 uint64_t inAnotinBFULL(const vector<robin_hood::unordered_map<string,bool>>& A, const vector<robin_hood::unordered_map<string,bool>>& B,uint64_t& cardkmer){
 	uint64_t res(0);
-	for(uint64_t i(0);i<1024;++i){
+	#pragma omp parallel for
+	for(uint64_t i=(0);i<1024;++i){
 		uint64_t local(inAnotinB(A[i],B[i]));
+		#pragma omp atomic
 		res+=local;
+		#pragma omp atomic
 		cardkmer+=B[i].size();
 	}
 	return res;
@@ -99,6 +104,7 @@ uint64_t str2num(const string& str){
 
 
 int main(int argc, char ** argv){
+	omp_set_nested(2);
 	if(argc<4){
 		cout<<"[unitig file] [reference file] [k value]"<<endl;
 		exit(0);
@@ -107,7 +113,7 @@ int main(int argc, char ** argv){
 	string inputRef(argv[2]);
 	uint64_t k(stoi(argv[3]));
 	srand (time(NULL));
-	string ref, useless,kmer;
+
 	ifstream inRef(inputRef),inSequences(inputUnitig);
 	if(not inRef.good() or not inSequences.good()){
 		cout<<"Problem with files opening"<<endl;
@@ -116,40 +122,69 @@ int main(int argc, char ** argv){
 	vector<uint64_t> lengths;
 	vector<robin_hood::unordered_map<string,bool>> genomicKmers(1024);
 	vector<robin_hood::unordered_map<string,bool>> seenKmers(1024);
+	vector<omp_lock_t> locks(1024);
+	for(uint i(0);i<1024;++i){
+		omp_init_lock(&locks[i]);
+	}
 	uint64_t size(0),number(0);
 	std::chrono::duration<double> elapsed_seconds;
 	uint64_t referenceKmers(0);
 	uint64_t targetKmer(0);
 
 	auto start = std::chrono::system_clock::now();
-	while(not inRef.eof()){
-		getline(inRef,useless);
-		getline(inRef,ref);
-		if(not ref.empty() and not useless.empty()){
-			for(uint64_t i(0);i+k<=ref.size();++i){
-				kmer=getCanonical(ref.substr(i,k));
-				genomicKmers[str2num(kmer.substr(0,5))][kmer]=true;
+	#pragma omp parallel
+	#pragma omp sections
+	{
+		#pragma omp section
+		{
+			#pragma omp parallel
+			{
+				string ref, useless,kmer;
+				while(not inRef.eof()){
+					#pragma omp critical (file1)
+					{
+						getline(inRef,useless);
+						getline(inRef,ref);
+					}
+					if(not ref.empty() and not useless.empty()){
+						for(uint64_t i(0);i+k<=ref.size();++i){
+							kmer=getCanonical(ref.substr(i,k));
+							uint64_t ilock(str2num(kmer.substr(0,5)));
+							omp_set_lock(&locks[ilock]);
+							genomicKmers[ilock][kmer]=true;
+							omp_unset_lock(&locks[ilock]);
+						}
+					}
+				}
 			}
 		}
-	}
-
-	auto point1 = std::chrono::system_clock::now();
-	elapsed_seconds = point1 - start;
-	cout<<"first file loaded: "<<elapsed_seconds.count()<<endl;
-
-	while(not inSequences.eof()){
-		getline(inSequences,useless);
-		getline(inSequences,ref);
-		if(not ref.empty() and not useless.empty()){
-			for(uint64_t i(0);i+k<=ref.size();++i){
-				kmer=getCanonical(ref.substr(i,k));
-				seenKmers[str2num(kmer.substr(0,5))][kmer]=true;
+		#pragma omp section
+		{
+			#pragma omp parallel
+			{
+				string ref, useless,kmer;
+				while(not inSequences.eof()){
+					#pragma omp critical (file2)
+					{
+						getline(inSequences,useless);
+						getline(inSequences,ref);
+					}
+					if(not ref.empty() and not useless.empty()){
+						for(uint64_t i(0);i+k<=ref.size();++i){
+							kmer=getCanonical(ref.substr(i,k));
+							uint64_t ilock(str2num(kmer.substr(0,5)));
+							omp_set_lock(&locks[ilock]);
+							seenKmers[ilock][kmer]=true;
+							omp_unset_lock(&locks[ilock]);
+						}
+					}
+				}
 			}
 		}
 	}
 	auto point2 = std::chrono::system_clock::now();
-	elapsed_seconds = point2 - point1;
-	cout<<"second file loaded: "<<elapsed_seconds.count()<<endl;
+	elapsed_seconds = point2 - start;
+	cout<<"Files loaded: "<<elapsed_seconds.count()<<endl;
 
 	uint64_t FP(0),TP(0),FN(0);
 	FP=inAnotinBFULL(seenKmers,genomicKmers,referenceKmers);
