@@ -327,9 +327,45 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 }
 
 
+int64_t contig_break(const string& ref, uint64_t start_position,Map map[]){
+	kmer seq(str2num(ref.substr(start_position, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	color c(0);
+	color minimal_color(-1);
+	if (map[Hache].count(canon) != 0) {
+		c = map[Hache][canon].first;
+		if (c != 0) {
+			minimal_color&=c;
+		}
+	}
+	for (uint j(start_position); j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			c = map[Hache][canon].first;
+		}
+		if (c != 0 and c!=minimal_color) {
+			minimal_color&=c;
+			if(minimal_color==0){
+				// print_color(minimal_color,2);
+				// cout<<"FAIL"<<endl;
+				return (int)j;
+			}else{
+				// print_color(minimal_color,2);
+			}
+		}
+	}
+	return -1;
+}
 
-uint64_t count_break(Map map[], const string& file_name) {
-	uint64_t result;
+
+
+pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
+	uint64_t broke_contigs(0);
+	uint64_t breaks(0);
+	vector<uint64_t> distrib;
 	zstr::ifstream in(file_name);
 	if (not in.good()) {
 		cout << "Problem with ref file opening:" << file_name << endl;
@@ -338,81 +374,40 @@ uint64_t count_break(Map map[], const string& file_name) {
 	// #pragma omp parallel
 	while (not in.eof()) {
 		string ref, useless;
-#pragma omp critical(file_ref)
+		#pragma omp critical(file_ref)
 		{
 			getline(in, useless);
 			getline(in, ref);
 		}
-		color minimal_color(-1);
-		// print_color(minimal_color,2);
-		// cout<<endl;
 		if (not ref.empty()) {
-			kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-			uint Hache(hash64shift(canon) % 16);
-			color c(0);
-			nutex[Hache].lock();
-			if (map[Hache].count(canon) != 0) {
-				c = map[Hache][canon].first;
-			}
-			nutex[Hache].unlock();
-			if (c != 0 and c!=minimal_color) {
-				minimal_color&=c;
-				if(minimal_color==0){
-					++result;
-					continue;
+			bool broke(false);
+			uint64_t local_breaks(0);
+			int64_t position(0);
+			while(position>=0){
+				position=contig_break(ref,position, map);
+				if(position>0){
+					broke=true;
+					local_breaks++;
+					position+=k+1;
 				}
-				// if (is_included(c, minimal_color)) {
-				// 	minimal_color = c;
-				// 	// print_color(minimal_color,2);
-				// 	// cout<<endl;
-				// } else {
-				//
-				// 	if (not is_included( minimal_color,c)) {
-				// 		cout<<"STOP"<<endl;
-				// 		print_color(c,8);
-				// 		print_color(minimal_color,8);
-				// 		cout<<endl;
-				// 		cin.get();
-				// 		++result;
-				// 		continue;
-				// 	}
-				// }
 			}
-			for (uint j(0); j + k < ref.size(); ++j) {
-				updateK(seq, ref[j + k]);
-				updateRCK(rcSeq, ref[j + k]);
-				canon = (min(seq, rcSeq));
-				uint Hache(hash64shift(canon) % 16);
+			if(broke){
+				broke_contigs++;
+				breaks+=local_breaks;
+			}
+			if(local_breaks>=distrib.size()){
+				distrib.resize(local_breaks+1);
+			}
+			distrib[local_breaks]++;
 
-				nutex[Hache].lock();
-				if (map[Hache].count(canon) != 0) {
-					c = map[Hache][canon].first;
-				}
-				nutex[Hache].unlock();
-				if (c != 0 and c!=minimal_color) {
-					minimal_color&=c;
-					if(minimal_color==0){
-						++result;
-						break;
-					}
-					// if (is_included(c, minimal_color)) {
-					// 	minimal_color = c;
-					// } else {
-					// 	if (not is_included( minimal_color,c)) {
-					// 		cout<<"STOP"<<endl;
-					// 		print_color(c,8);
-					// 		print_color(minimal_color,8);
-					// 		cout<<endl;
-					// 		cin.get();
-					// 		++result;
-					// 		break;
-					// 	}
-					// }
-				}
-			}
 		}
 	}
-	return result;
+	for(uint i(0);i<distrib.size();++i){
+		if(distrib[i]!=0){
+			cout<<distrib[i]<<"		contigs have	"<<i<<"	phase breaks"<<endl;
+		}
+	}
+	return {broke_contigs,breaks};
 }
 
 
@@ -438,8 +433,8 @@ int main(int argc, char** argv) {
 	cout<<"Completness EVALUATION"<<endl;
 	evaluate_completness(cardinalities, venn);
 	cout<<"BREAKS EVALUATION"<<endl;
-	uint64_t breaks(count_break(map, inputRef));
-	cout<<"Phasing breaks:	" << breaks << endl;
+	auto breaks(count_break(map, inputRef));
+		cout<<"Erroneous contigs:	"<<breaks.first<<"	Phasing breaks (total):	" << breaks.second << endl;
 	auto end                                 = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
 	time_t end_time                          = chrono::system_clock::to_time_t(end);
