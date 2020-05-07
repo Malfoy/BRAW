@@ -33,7 +33,7 @@ array<mutex, 1024> nutex;
 
 
 void set_color(color& c, int indice) {
-	c += (1 << indice);
+	c |= (1 << indice);
 }
 
 
@@ -55,17 +55,13 @@ void print_color(color c, int n){
 
 
 bool is_included(color c1, color c2) {
-	// print_color(c2,8);
-	// print_color(c1,8);
 	for (int i(0); i < max_color; ++i) {
 		if (c2 % 2 == 0 and c1 % 2 == 1) {
-			// cout<<"false"<<endl;
 			return false;
 		}
 		c2 >>= 1;
 		c1 >>= 1;
 	}
-	// cout<<"true"<<endl;
 	return true;
 }
 
@@ -251,21 +247,18 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 			getline(in, useless);
 			getline(in, ref);
 		}
-		if (not ref.empty()) {
-			// cout<<"go line"<<endl;
-			kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+		if (ref.size()>=(uint)k) {
+			kmer seq(str2num(ref.substr(0, k)));
+			kmer rcSeq(rcb(seq, k));
+			kmer canon(min(seq, rcSeq));
 			uint Hache(hash64shift(canon) % 16);
 			color c(0);
-			bool done;
+			bool done=false;
 			nutex[Hache].lock();
 			if (map[Hache].count(canon) != 0) {
-				// cout<<"go kmer fund"<<endl;
 				c = map[Hache][canon].first;
 				done=map[Hache][canon].second;
 				map[Hache][canon].second=true;
-			}else{
-					// cout<<"go kmerNOT fund"<<endl;
-				c=0;
 			}
 			nutex[Hache].unlock();
 			if(not done){
@@ -278,23 +271,20 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 				updateRCK(rcSeq, ref[j + k]);
 				canon = (min(seq, rcSeq));
 				uint Hache(hash64shift(canon) % 16);
-
 				nutex[Hache].lock();
 				if (map[Hache].count(canon) != 0) {
-					// cout<<"go kmer fund"<<endl;
 					c = map[Hache][canon].first;
 					done=map[Hache][canon].second;
 					map[Hache][canon].second=true;
 				}else{
-					// cout<<"go kmerNOT fund"<<endl;
 					c=0;
+					done=false;
 				}
 				nutex[Hache].unlock();
 				if(not done){
 					#pragma omp atomic
 					++result[c];
 				}
-				// cout<<"THE END"<<endl;
 			}
 		}
 	}
@@ -327,7 +317,7 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 }
 
 
-int64_t contig_break(const string& ref, uint64_t start_position,Map map[]){
+int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 	kmer seq(str2num(ref.substr(start_position, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
 	uint Hache(hash64shift(canon) % 16);
 	color c(0);
@@ -349,11 +339,8 @@ int64_t contig_break(const string& ref, uint64_t start_position,Map map[]){
 		if (c != 0 and c!=minimal_color) {
 			minimal_color&=c;
 			if(minimal_color==0){
-				// print_color(minimal_color,2);
-				// cout<<"FAIL"<<endl;
-				return (int)j;
+				return (int)j+1;
 			}else{
-				// print_color(minimal_color,2);
 			}
 		}
 	}
@@ -371,7 +358,7 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 		cout << "Problem with ref file opening:" << file_name << endl;
 		exit(1);
 	}
-	// #pragma omp parallel
+	#pragma omp parallel
 	while (not in.eof()) {
 		string ref, useless;
 		#pragma omp critical(file_ref)
@@ -379,27 +366,34 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 			getline(in, useless);
 			getline(in, ref);
 		}
-		if (not ref.empty()) {
+		if (ref.size()>(uint)k) {
+
 			bool broke(false);
 			uint64_t local_breaks(0);
 			int64_t position(0);
 			while(position>=0){
 				position=contig_break(ref,position, map);
+				// cout<<"ref"<<ref.size()<<endl;
+				// cout<<position<<endl;
 				if(position>0){
 					broke=true;
 					local_breaks++;
-					position+=k+1;
+					position+=1;
 				}
 			}
-			if(broke){
-				broke_contigs++;
-				breaks+=local_breaks;
+			#pragma omp critical(update)
+			{
+				if(broke){
+					#pragma omp atomic
+					broke_contigs++;
+					#pragma omp atomic
+					breaks+=local_breaks;
+				}
+				if(local_breaks>=distrib.size()){
+					distrib.resize(local_breaks+1);
+				}
+				distrib[local_breaks]++;
 			}
-			if(local_breaks>=distrib.size()){
-				distrib.resize(local_breaks+1);
-			}
-			distrib[local_breaks]++;
-
 		}
 	}
 	for(uint i(0);i<distrib.size();++i){
@@ -429,7 +423,7 @@ int main(int argc, char** argv) {
 	cout<<"LOAD REFERENCES"<<endl;
 	vector<uint64_t> cardinalities(load_reference_file(map, inputFILE));
 	cout<<"VENN EVALUATION"<<endl;
-	vector<uint64_t> venn(Venn_evaluation(map, inputRef,1<<cardinalities.size()));
+	vector<uint64_t> venn(Venn_evaluation(map, inputRef,1<<(cardinalities.size())));
 	cout<<"Completness EVALUATION"<<endl;
 	evaluate_completness(cardinalities, venn);
 	cout<<"BREAKS EVALUATION"<<endl;
