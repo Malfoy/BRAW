@@ -393,10 +393,17 @@ int64_t error_in_contigs(const string& ref,Map map[]){
 
 
 
-pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
+void count_break_and_errors(Map map[], const string& file_name) {
 	uint64_t broke_contigs(0);
 	uint64_t breaks(0);
-	vector<uint64_t> distrib(11);
+	uint64_t Erroneous_contigs(0);
+	uint64_t errors(0);
+	uint64_t perfect_contigs(0);
+	uint64_t perfect_contigs_size(0);
+	uint64_t total_contigs(0);
+	uint64_t total_nuc(0);
+	vector<uint64_t> distrib_breaks(11);
+	vector<uint64_t> distrib_errors(11);
 	zstr::ifstream in(file_name);
 	if (not in.good()) {
 		cout << "Problem with ref file opening:" << file_name << endl;
@@ -411,14 +418,14 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 			getline(in, ref);
 		}
 		if (ref.size()>(uint)k) {
-
+			total_contigs++;
+			total_nuc+=ref.size();
+			int64_t local_errors=error_in_contigs(ref,map);
 			bool broke(false);
 			uint64_t local_breaks(0);
 			int64_t position(0);
 			while(position>=0){
 				position=contig_break(ref,position, map);
-				// cout<<"ref"<<ref.size()<<endl;
-				// cout<<position<<endl;
 				if(position>0){
 					broke=true;
 					local_breaks++;
@@ -428,76 +435,57 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 			#pragma omp critical(update)
 			{
 				if(broke){
-					#pragma omp atomic
 					broke_contigs++;
-					#pragma omp atomic
 					breaks+=local_breaks;
-				}
-				if(local_breaks>=distrib.size()){
-					distrib[distrib.size()-1]++;
 				}else{
-					distrib[local_breaks]++;
+					if(local_errors==0){
+						perfect_contigs++;
+						perfect_contigs_size+=ref.size();
+					}
 				}
-
-			}
-		}
-	}
-	for(uint i(0);i<distrib.size()-1;++i){
-		if(distrib[i]!=0){
-			cout<<intToString(distrib[i])<<"		contigs have	"<<intToString(i)<<"	phase breaks"<<endl;
-		}
-	}
-	if(distrib[distrib.size()-1]!=0){
-		cout<<intToString(distrib[distrib.size()-1])<<"		contigs have	"<<intToString(distrib.size()-1)<<"	phase breaks (OR MORE)"<<endl;
-	}
-	return {broke_contigs,breaks};
-}
-
-
-
-
-pair<uint64_t,uint64_t> count_errors(Map map[], const string& file_name) {
-	uint64_t Erroneous_contigs(0);
-	uint64_t errors(0);
-	vector<uint64_t> distrib(11);
-	zstr::ifstream in(file_name);
-	if (not in.good()) {
-		cout << "Problem with ref file opening:" << file_name << endl;
-		exit(1);
-	}
-	#pragma omp parallel
-	while (not in.eof()) {
-		string ref, useless;
-		#pragma omp critical(file_ref)
-		{
-			getline(in, useless);
-			getline(in, ref);
-		}
-		if (ref.size()>(uint)k) {
-			int64_t local_errors=error_in_contigs(ref,map);
-			#pragma omp critical(update)
-			{
+				if(local_breaks>=distrib_breaks.size()){
+					distrib_breaks[distrib_breaks.size()-1]++;
+				}else{
+					distrib_breaks[local_breaks]++;
+				}
 				Erroneous_contigs++;
 				errors+=local_errors;
-				if(local_errors>=(int)distrib.size()){
-					distrib[distrib.size()-1]++;
+				if(local_errors>=(int)distrib_errors.size()){
+					distrib_errors[distrib_errors.size()-1]++;
 				}else{
-					distrib[local_errors]++;
+					distrib_errors[local_errors]++;
 				}
 
 			}
 		}
 	}
-	for(uint i(0);i<distrib.size()-1;++i){
-		if(distrib[i]!=0){
-			cout<<intToString(distrib[i])<<"		contigs have	"<<i<<"	phase breaks"<<endl;
+	cout<<"\nContigs with breaks:	"<<intToString(broke_contigs)<<"	Phasing breaks (total):	" << intToString(breaks)<< endl;
+	cout<<"Breaks distribution"<<endl;
+
+	for(uint i(0);i<distrib_breaks.size()-1;++i){
+		if(distrib_breaks[i]!=0){
+			cout<<intToString(distrib_breaks[i])<<"		contigs have	"<<intToString(i)<<"	phase breaks"<<endl;
 		}
 	}
-	if(distrib[distrib.size()-1]!=0){
-		cout<<intToString(distrib[distrib.size()-1])<<"		contigs have	"<<distrib.size()-1<<"	phase breaks (OR MORE)"<<endl;
+	if(distrib_breaks[distrib_breaks.size()-1]!=0){
+		cout<<intToString(distrib_breaks[distrib_breaks.size()-1])<<"		contigs have	"<<intToString(distrib_breaks.size()-1)<<"	phase breaks (OR MORE)"<<endl;
 	}
-	return {Erroneous_contigs,errors};
+
+	cout<<"\nContigs with errors:	"<<intToString(Erroneous_contigs)<<"	Errors (total):	" << intToString(errors) << endl;
+	cout<<"Errors distribution"<<endl;
+	for(uint i(0);i<distrib_errors.size()-1;++i){
+		if(distrib_errors[i]!=0){
+			cout<<intToString(distrib_errors[i])<<"		contigs have	"<<i<<" sequencing errors"<<endl;
+		}
+	}
+	if(distrib_errors[distrib_errors.size()-1]!=0){
+		cout<<intToString(distrib_errors[distrib_errors.size()-1])<<"		contigs have	"<<distrib_errors.size()-1<<" sequencing errors(OR MORE)"<<endl;
+	}
+	cout<<intToString(perfect_contigs)<<"	perfect contigs totalling "<<intToString(perfect_contigs_size)<<" bases"<<endl;
+	cout<<intToString(perfect_contigs)<<"	out of "<<intToString(total_contigs)<<" mean "<<(double)100*perfect_contigs/total_contigs<<" % perfect contigs"<<endl;
+	cout<<intToString(perfect_contigs_size)<<"	bases out of  "<<intToString(total_nuc)<<" mean "<<(double)100*perfect_contigs_size/total_nuc<<" % perfect contigs in bases"<<endl;
 }
+
 
 
 
@@ -523,11 +511,11 @@ int main(int argc, char** argv) {
 	cout<<"Completness EVALUATION"<<endl;
 	evaluate_completness(cardinalities, venn);
 	cout<<"BREAKS EVALUATION"<<endl;
-	auto breaks(count_break(map, inputRef));
-	cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
-	cout<<"ERRORS EVALUATION"<<endl;
-	auto errors(count_errors(map, inputRef));
-	cout<<"Contigs with errors:	"<<intToString(errors.first)<<"	Errors (total):	" << intToString(errors.second) << endl;
+	count_break_and_errors(map, inputRef);
+	// cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
+	// cout<<"ERRORS EVALUATION"<<endl;
+	// auto errors(count_errors(map, inputRef));
+	// cout<<"Contigs with errors:	"<<intToString(errors.first)<<"	Errors (total):	" << intToString(errors.second) << endl;
 	auto end                                 = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
 	time_t end_time                          = chrono::system_clock::to_time_t(end);
