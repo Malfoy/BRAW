@@ -32,6 +32,22 @@ kmer offsetUpdateAnchors = 1;
 array<mutex, 1024> nutex;
 
 
+
+string intToString(uint64_t n){
+	if(n<1000){
+		return to_string(n);
+	}
+	string end(to_string(n%1000));
+	if(end.size()==3){
+		return intToString(n/1000)+","+end;
+	}
+	if(end.size()==2){
+		return intToString(n/1000)+",0"+end;
+	}
+	return intToString(n/1000)+",00"+end;
+}
+
+
 void set_color(color& c, int indice) {
 	c |= (1 << indice);
 }
@@ -298,7 +314,7 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 	cout<<"Venn:	"<<endl;
 	for (uint64_t i(0); i < venn.size(); ++i) {
 		// print_color(i,2);
-		cout<<" "<<venn[i]<<endl;
+		cout<<" "<<intToString(venn[i])<<endl;
 		uint64_t i_bin(i);
 		uint64_t id(0);
 		while (i_bin != 0) {
@@ -310,9 +326,9 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 		}
 	}
 	for (uint64_t i(0); i < counted.size(); ++i) {
-		cout<<"Kmers  found from file:	" << i << "	" <<counted[i]  << endl;
+		cout<<"Kmers  found from file:	" << i << "	" <<intToString(counted[i])  << endl;
 		// cout<<"Card  of file:	" << i << "	" << cardinalities[i]  << endl;
-		cout<<"Completness % for file:	" << i << "	" << 100 * counted[i] / cardinalities[i] << endl;
+		cout<<"Completness % for file:	" << i << "	" << (double)100 * counted[i] / cardinalities[i] << endl;
 	}
 }
 
@@ -349,10 +365,38 @@ int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 
 
 
+int64_t error_in_contigs(const string& ref,Map map[]){
+	int64_t result(0);
+	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	color c(0);
+	if (map[Hache].count(canon) != 0) {
+		c = map[Hache][canon].first;
+		if (c == 0) {
+			result++;
+		}
+	}
+	for (uint j(0); j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			c = map[Hache][canon].first;
+		}
+		if (c ==0) {
+			result++;
+		}
+	}
+	return result;
+}
+
+
+
 pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 	uint64_t broke_contigs(0);
 	uint64_t breaks(0);
-	vector<uint64_t> distrib;
+	vector<uint64_t> distrib(11);
 	zstr::ifstream in(file_name);
 	if (not in.good()) {
 		cout << "Problem with ref file opening:" << file_name << endl;
@@ -390,19 +434,71 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 					breaks+=local_breaks;
 				}
 				if(local_breaks>=distrib.size()){
-					distrib.resize(local_breaks+1);
+					distrib[distrib.size()-1]++;
+				}else{
+					distrib[local_breaks]++;
 				}
-				distrib[local_breaks]++;
+
 			}
 		}
 	}
-	for(uint i(0);i<distrib.size();++i){
+	for(uint i(0);i<distrib.size()-1;++i){
 		if(distrib[i]!=0){
-			cout<<distrib[i]<<"		contigs have	"<<i<<"	phase breaks"<<endl;
+			cout<<intToString(distrib[i])<<"		contigs have	"<<intToString(i)<<"	phase breaks"<<endl;
 		}
+	}
+	if(distrib[distrib.size()-1]!=0){
+		cout<<intToString(distrib[distrib.size()-1])<<"		contigs have	"<<intToString(distrib.size()-1)<<"	phase breaks (OR MORE)"<<endl;
 	}
 	return {broke_contigs,breaks};
 }
+
+
+
+
+pair<uint64_t,uint64_t> count_errors(Map map[], const string& file_name) {
+	uint64_t Erroneous_contigs(0);
+	uint64_t errors(0);
+	vector<uint64_t> distrib(11);
+	zstr::ifstream in(file_name);
+	if (not in.good()) {
+		cout << "Problem with ref file opening:" << file_name << endl;
+		exit(1);
+	}
+	#pragma omp parallel
+	while (not in.eof()) {
+		string ref, useless;
+		#pragma omp critical(file_ref)
+		{
+			getline(in, useless);
+			getline(in, ref);
+		}
+		if (ref.size()>(uint)k) {
+			int64_t local_errors=error_in_contigs(ref,map);
+			#pragma omp critical(update)
+			{
+				Erroneous_contigs++;
+				errors+=local_errors;
+				if(local_errors>=(int)distrib.size()){
+					distrib[distrib.size()-1]++;
+				}else{
+					distrib[local_errors]++;
+				}
+
+			}
+		}
+	}
+	for(uint i(0);i<distrib.size()-1;++i){
+		if(distrib[i]!=0){
+			cout<<intToString(distrib[i])<<"		contigs have	"<<i<<"	phase breaks"<<endl;
+		}
+	}
+	if(distrib[distrib.size()-1]!=0){
+		cout<<intToString(distrib[distrib.size()-1])<<"		contigs have	"<<distrib.size()-1<<"	phase breaks (OR MORE)"<<endl;
+	}
+	return {Erroneous_contigs,errors};
+}
+
 
 
 
@@ -428,10 +524,13 @@ int main(int argc, char** argv) {
 	evaluate_completness(cardinalities, venn);
 	cout<<"BREAKS EVALUATION"<<endl;
 	auto breaks(count_break(map, inputRef));
-		cout<<"Erroneous contigs:	"<<breaks.first<<"	Phasing breaks (total):	" << breaks.second << endl;
+	cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
+	cout<<"ERRORS EVALUATION"<<endl;
+	auto errors(count_errors(map, inputRef));
+	cout<<"Contigs with errors:	"<<intToString(errors.first)<<"	Errors (total):	" << intToString(errors.second) << endl;
 	auto end                                 = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
 	time_t end_time                          = chrono::system_clock::to_time_t(end);
 
-	cout << "\nFinished computation at " << ctime(&end_time) << "Elapsed time: " << elapsed_seconds.count() << "s\n";
+	cout << "\nFinished computation at " << ctime(&end_time) << "Elapsed time: " << intToString(elapsed_seconds.count()) << "s\n";
 }
