@@ -22,19 +22,31 @@ using namespace std;
 
 typedef uint64_t kmer;
 typedef uint8_t color;
-
-// key = kmer, value = pair (color: genomes where the kmer occurs (?). Max 8 genomes, boolean: ?)
+// key = kmer, value = pair (color: genomes where the kmer occurs. Max 8 genomes, boolean: has been seen (for feeding venn diagrams))
 typedef robin_hood::unordered_flat_map<kmer, pair<color,bool>> Map;
 
 
 // severe limitation here, todo: authorize more than 8 colors. 
 int max_color(8);
-// can fredy work with distinct value?
 int k(31);
-
-// ?
 kmer offsetUpdateAnchors = 1;
 array<mutex, 1024> nutex;
+
+
+
+string intToString(uint64_t n){
+	if(n<1000){
+		return to_string(n);
+	}
+	string end(to_string(n%1000));
+	if(end.size()==3){
+		return intToString(n/1000)+","+end;
+	}
+	if(end.size()==2){
+		return intToString(n/1000)+",0"+end;
+	}
+	return intToString(n/1000)+",00"+end;
+}
 
 
 void set_color(color& c, int indice) {
@@ -81,7 +93,7 @@ kmer str2num(const string& str) {
 		res <<= 2;
 		switch (str[i]) {
 			case 'A':
-				// res += 0;
+				res += 0;
 				break;
 			case 'C':
 				res += 1;
@@ -186,7 +198,7 @@ kmer hash64shift(kmer key) {
  * returns the number of read kmers. 
  */
 uint64_t load_reference(Map map[], const string file_name, int reference_number) {
-	uint64_t result(0); // nb indexed kmers for this reference. 
+	uint64_t result(0);// nb indexed kmers for this reference. 
 	if (reference_number >= max_color) {
 		cout << "Too much references, max is: " << max_color << endl;
 		cout << "I ignore " << file_name << endl;
@@ -202,7 +214,7 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 		string ref, useless;
 #pragma omp critical(file_ref)
 		{
-			getline(in, useless); 	// read a comment, useless
+			getline(in, useless);   // read a comment, useless
 			getline(in, ref);		// read the ACGT sequence
 		}
 		if (not ref.empty()) {
@@ -221,6 +233,7 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 				canon = (min(seq, rcSeq));
 				uint Hache(hash64shift(canon) % 16);
 				nutex[Hache].lock();
+				// for this kmer, set its indexed value adding the reference_number
 				set_color(map[Hache][canon].first, reference_number);
 				nutex[Hache].unlock();
 #pragma omp atomic
@@ -230,6 +243,7 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 	}
 	return result;
 }
+
 
 
 /**
@@ -247,14 +261,14 @@ vector<uint64_t> load_reference_file(Map map[], const string& file_name) {
 	int reference_number(0);
 	while (not in.eof()) {
 		getline(in, ref_file);
-
 		if (ref_file.size() > 1) {
 			result.push_back(load_reference(map, ref_file, reference_number));
-			reference_number++;
 		}
+		reference_number++;
 	}
 	return result;
 }
+
 
 
 /**
@@ -286,17 +300,17 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 
 			// enables to store in results once all kmers. 
 			// optimisable (eg with a set once initialy reading kmers)
-			if (map[Hache].count(canon) != 0) { // should always be true (?)
+
+			if (map[Hache].count(canon) != 0) { // should always be true (?pierre?)
 				c = map[Hache][canon].first;
 				done=map[Hache][canon].second;
-				map[Hache][canon].second=true; // validate if this kmer has already been seen (even from another file)
+				map[Hache][canon].second=true; // validate if this kmer has already been seen 
 			}
 			nutex[Hache].unlock();
 			if(not done){
 				#pragma omp atomic
 				++result[c];
 			}
-
 
 			for (uint j(0); j + k < ref.size(); ++j) {
 				updateK(seq, ref[j + k]);
@@ -332,7 +346,7 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 	cout<<"Venn:	"<<endl;
 	for (uint64_t i(0); i < venn.size(); ++i) {
 		// print_color(i,2);
-		cout<<" "<<venn[i]<<endl;
+		cout<<" "<<intToString(venn[i])<<endl;
 		uint64_t i_bin(i);
 		uint64_t id(0);
 		while (i_bin != 0) {
@@ -344,9 +358,9 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 		}
 	}
 	for (uint64_t i(0); i < counted.size(); ++i) {
-		cout<<"Kmers  found from file:	" << i << "	" <<counted[i]  << endl;
+		cout<<"Kmers  found from file:	" << i << "	" <<intToString(counted[i])  << endl;
 		// cout<<"Card  of file:	" << i << "	" << cardinalities[i]  << endl;
-		cout<<"Completness % for file:	" << i << "	" << 100 * counted[i] / cardinalities[i] << endl;
+		cout<<"Completness % for file:	" << i << "	" << (double)100 * counted[i] / cardinalities[i] << endl;
 	}
 }
 
@@ -383,10 +397,45 @@ int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 
 
 
-pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
+int64_t error_in_contigs(const string& ref,Map map[]){
+	int64_t result(0);
+	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	color c(0);
+	if (map[Hache].count(canon) != 0) {
+		c = map[Hache][canon].first;
+		if (c == 0) {
+			result++;
+		}
+	}
+	for (uint j(0); j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			c = map[Hache][canon].first;
+		}
+		if (c ==0) {
+			result++;
+		}
+	}
+	return result;
+}
+
+
+
+void count_break_and_errors(Map map[], const string& file_name) {
 	uint64_t broke_contigs(0);
 	uint64_t breaks(0);
-	vector<uint64_t> distrib;
+	uint64_t Erroneous_contigs(0);
+	uint64_t errors(0);
+	uint64_t perfect_contigs(0);
+	uint64_t perfect_contigs_size(0);
+	uint64_t total_contigs(0);
+	uint64_t total_nuc(0);
+	vector<uint64_t> distrib_breaks(11);
+	vector<uint64_t> distrib_errors(11);
 	zstr::ifstream in(file_name);
 	if (not in.good()) {
 		cout << "Problem with ref file opening:" << file_name << endl;
@@ -401,14 +450,14 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 			getline(in, ref);
 		}
 		if (ref.size()>(uint)k) {
-
+			total_contigs++;
+			total_nuc+=ref.size();
+			int64_t local_errors=error_in_contigs(ref,map);
 			bool broke(false);
 			uint64_t local_breaks(0);
 			int64_t position(0);
 			while(position>=0){
 				position=contig_break(ref,position, map);
-				// cout<<"ref"<<ref.size()<<endl;
-				// cout<<position<<endl;
 				if(position>0){
 					broke=true;
 					local_breaks++;
@@ -418,25 +467,58 @@ pair<uint64_t,uint64_t> count_break(Map map[], const string& file_name) {
 			#pragma omp critical(update)
 			{
 				if(broke){
-					#pragma omp atomic
 					broke_contigs++;
-					#pragma omp atomic
 					breaks+=local_breaks;
+				}else{
+					if(local_errors==0){
+						perfect_contigs++;
+						perfect_contigs_size+=ref.size();
+					}
 				}
-				if(local_breaks>=distrib.size()){
-					distrib.resize(local_breaks+1);
+				if(local_breaks>=distrib_breaks.size()){
+					distrib_breaks[distrib_breaks.size()-1]++;
+				}else{
+					distrib_breaks[local_breaks]++;
 				}
-				distrib[local_breaks]++;
+				Erroneous_contigs++;
+				errors+=local_errors;
+				if(local_errors>=(int)distrib_errors.size()){
+					distrib_errors[distrib_errors.size()-1]++;
+				}else{
+					distrib_errors[local_errors]++;
+				}
+
 			}
 		}
 	}
-	for(uint i(0);i<distrib.size();++i){
-		if(distrib[i]!=0){
-			cout<<distrib[i]<<"		contigs have	"<<i<<"	phase breaks"<<endl;
+	cout<<"\nContigs with breaks:	"<<intToString(broke_contigs)<<"	Phasing breaks (total):	" << intToString(breaks)<< endl;
+	cout<<"Breaks distribution"<<endl;
+
+	for(uint i(0);i<distrib_breaks.size()-1;++i){
+		if(distrib_breaks[i]!=0){
+			cout<<intToString(distrib_breaks[i])<<"		contigs have	"<<intToString(i)<<"	phase breaks"<<endl;
 		}
 	}
-	return {broke_contigs,breaks};
+	if(distrib_breaks[distrib_breaks.size()-1]!=0){
+		cout<<intToString(distrib_breaks[distrib_breaks.size()-1])<<"		contigs have	"<<intToString(distrib_breaks.size()-1)<<"	phase breaks (OR MORE)"<<endl;
+	}
+
+	cout<<"\nContigs with errors:	"<<intToString(Erroneous_contigs)<<"	Errors (total):	" << intToString(errors) << endl;
+	cout<<"Errors distribution"<<endl;
+	for(uint i(0);i<distrib_errors.size()-1;++i){
+		if(distrib_errors[i]!=0){
+			cout<<intToString(distrib_errors[i])<<"		contigs have	"<<i<<" sequencing errors"<<endl;
+		}
+	}
+	if(distrib_errors[distrib_errors.size()-1]!=0){
+		cout<<intToString(distrib_errors[distrib_errors.size()-1])<<"		contigs have	"<<distrib_errors.size()-1<<" sequencing errors(OR MORE)"<<endl;
+	}
+	cout<<intToString(perfect_contigs)<<"	perfect contigs totalling "<<intToString(perfect_contigs_size)<<" bases"<<endl;
+	cout<<intToString(perfect_contigs)<<"	out of "<<intToString(total_contigs)<<" mean "<<(double)100*perfect_contigs/total_contigs<<" % perfect contigs"<<endl;
+	cout<<intToString(perfect_contigs_size)<<"	bases out of  "<<intToString(total_nuc)<<" mean "<<(double)100*perfect_contigs_size/total_nuc<<" % perfect contigs in bases"<<endl;
 }
+
+
 
 
 
@@ -457,16 +539,18 @@ int main(int argc, char** argv) {
 	cout<<"LOAD REFERENCES"<<endl;
 	vector<uint64_t> cardinalities(load_reference_file(map, inputFILE));
 	cout<<"VENN EVALUATION"<<endl;
-	// 
 	vector<uint64_t> venn(Venn_evaluation(map, inputRef,1<<(cardinalities.size())));
 	cout<<"Completness EVALUATION"<<endl;
 	evaluate_completness(cardinalities, venn);
 	cout<<"BREAKS EVALUATION"<<endl;
-	auto breaks(count_break(map, inputRef));
-		cout<<"Erroneous contigs:	"<<breaks.first<<"	Phasing breaks (total):	" << breaks.second << endl;
+	count_break_and_errors(map, inputRef);
+	// cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
+	// cout<<"ERRORS EVALUATION"<<endl;
+	// auto errors(count_errors(map, inputRef));
+	// cout<<"Contigs with errors:	"<<intToString(errors.first)<<"	Errors (total):	" << intToString(errors.second) << endl;
 	auto end                                 = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds = end - start;
 	time_t end_time                          = chrono::system_clock::to_time_t(end);
 
-	cout << "\nFinished computation at " << ctime(&end_time) << "Elapsed time: " << elapsed_seconds.count() << "s\n";
+	cout << "\nFinished computation at " << ctime(&end_time) << "Elapsed time: " << intToString(elapsed_seconds.count()) << "s\n";
 }
