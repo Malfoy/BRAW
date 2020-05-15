@@ -22,10 +22,11 @@ using namespace std;
 
 typedef uint64_t kmer;
 typedef uint8_t color;
+// key = kmer, value = pair (color: genomes where the kmer occurs. Max 8 genomes, boolean: has been seen (for feeding venn diagrams))
 typedef robin_hood::unordered_flat_map<kmer, pair<color,bool>> Map;
 
 
-
+// severe limitation here, todo: authorize more than 8 colors. 
 int max_color(8);
 int k(31);
 kmer offsetUpdateAnchors = 1;
@@ -60,16 +61,34 @@ bool is_set(int indice, color c) {
 }
 
 
-void print_color(color c, int n){
+string get_color_code(color c, int n){
+	string res="";
 	for(int i(0);i<n;++i){
-		cout<<c%2;
+		// cout<<c%2;
+		if (c%2) res+= '1';
+		else  res+= '0';
 		c>>=1;
 	}
-	cout<<" "<<flush;
+	return res;
 }
 
 
+string print_color(color c, int n){
+	string res="";
+	for(int i(0);i<n;++i){
+		cout<<c%2;
+		res += c%2;
+		c>>=1;
+	}
+	cout<<" "<<flush;
+	return res;
+}
 
+
+// checks if c2 is included in c1. "included" means that all 1's in c1 are also in c2.
+// this is not the case on this example as the second bit is 1 in c1 and 0 in c2 
+// 01010110 c1
+// 00110111 c2
 bool is_included(color c1, color c2) {
 	for (int i(0); i < max_color; ++i) {
 		if (c2 % 2 == 0 and c1 % 2 == 1) {
@@ -82,7 +101,7 @@ bool is_included(color c1, color c2) {
 }
 
 
-
+// optimisable (see eg BankBinary from GATB)
 kmer str2num(const string& str) {
 	kmer res(0);
 	for (uint64_t i(0); i < str.size(); i++) {
@@ -106,7 +125,9 @@ kmer str2num(const string& str) {
 }
 
 
-
+/** 
+ * Reverse complement of a kmer. 
+ */
 kmer rcb(kmer min, uint n) {
 	kmer res(0);
 	kmer offset(1);
@@ -150,7 +171,9 @@ kmer nuc2intrc(char c) {
 }
 
 
-
+/**
+ * Add a nucleotide to an already computed kmer
+ */
 void updateK(kmer& min, char nuc) {
 	min <<= 2;
 	min += nuc2int(nuc);
@@ -158,14 +181,18 @@ void updateK(kmer& min, char nuc) {
 }
 
 
-
+/**
+ * Add a nucleotide to an already computed reverse complement of a kmer
+ */
 void updateRCK(kmer& min, char nuc) {
 	min >>= 2;
 	min += (nuc2intrc(nuc) << (2 * (k - 1)));
 }
 
 
-
+/**
+ * hash value for a kmer
+ */
 kmer hash64shift(kmer key) {
 	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
 	key = key ^ (key >> 24);
@@ -180,9 +207,13 @@ kmer hash64shift(kmer key) {
 
 
 
-
+/** 
+ * Index all canonical kmers from the fasta file (file_name)
+ * map then contains for each hashed kmer, the canonical value and its color, updated with this reference_number
+ * returns the number of read kmers. 
+ */
 uint64_t load_reference(Map map[], const string file_name, int reference_number) {
-	uint64_t result(0);
+	uint64_t result(0);// nb indexed kmers for this reference. 
 	if (reference_number >= max_color) {
 		cout << "Too much references, max is: " << max_color << endl;
 		cout << "I ignore " << file_name << endl;
@@ -198,13 +229,15 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 		string ref, useless;
 #pragma omp critical(file_ref)
 		{
-			getline(in, useless);
-			getline(in, ref);
+			getline(in, useless);   // read a comment, useless
+			getline(in, ref);		// read the ACGT sequence
 		}
 		if (not ref.empty()) {
+			// read all kmers from the ref sequence
 			kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
 			uint Hache(hash64shift(canon) % 16);
 			nutex[Hache].lock();
+			// for this kmer, set its indexed value adding the reference_number
 			set_color(map[Hache][canon].first, reference_number);
 			nutex[Hache].unlock();
 #pragma omp atomic
@@ -215,6 +248,7 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 				canon = (min(seq, rcSeq));
 				uint Hache(hash64shift(canon) % 16);
 				nutex[Hache].lock();
+				// for this kmer, set its indexed value adding the reference_number
 				set_color(map[Hache][canon].first, reference_number);
 				nutex[Hache].unlock();
 #pragma omp atomic
@@ -227,6 +261,10 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 
 
 
+/**
+ * Read the file of file referencing fasta files
+ * Returns a vector of the number of read kmers per file
+ */
 vector<uint64_t> load_reference_file(Map map[], const string& file_name) {
 	vector<uint64_t> result;
 	zstr::ifstream in(file_name);
@@ -248,6 +286,9 @@ vector<uint64_t> load_reference_file(Map map[], const string& file_name) {
 
 
 
+/**
+ * For each potential color, store the number of corresponding kmers
+ */
 vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_result) {
 	vector<uint64_t> result(size_result);
 	zstr::ifstream in(file_name);
@@ -271,10 +312,14 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 			color c(0);
 			bool done=false;
 			nutex[Hache].lock();
-			if (map[Hache].count(canon) != 0) {
+
+			// enables to store in results once all kmers. 
+			// optimisable (eg with a set once initialy reading kmers)
+
+			if (map[Hache].count(canon) != 0) { // should always be true (?pierre?)
 				c = map[Hache][canon].first;
 				done=map[Hache][canon].second;
-				map[Hache][canon].second=true;
+				map[Hache][canon].second=true; // validate if this kmer has already been seen 
 			}
 			nutex[Hache].unlock();
 			if(not done){
@@ -308,13 +353,24 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 }
 
 
+/**
+ * prints the cardinality of each color
+ */
+void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<uint64_t>& venn, int size_result, const string& venout_file_name = "venn_out.txt") {
+	
+	ofstream out(venout_file_name);
+	if (not out.good()) {
+		cout << "Problem opening file:" << venout_file_name << " for writing the venn resutls"<<endl;
+		exit(1);
+	}
 
-void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<uint64_t>& venn) {
 	vector<uint64_t> counted(cardinalities.size());
 	cout<<"Venn:	"<<endl;
+	out<<"#Venn:	"<<endl;
 	for (uint64_t i(0); i < venn.size(); ++i) {
-		// print_color(i,2);
-		cout<<" "<<intToString(venn[i])<<endl;
+		string colors = get_color_code(i,size_result);
+		cout<<colors<<" "<<intToString(venn[i])<<endl;
+		out<<colors<<" "<<venn[i]<<endl;
 		uint64_t i_bin(i);
 		uint64_t id(0);
 		while (i_bin != 0) {
@@ -325,12 +381,15 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 			++id;
 		}
 	}
+	out.close();
 	for (uint64_t i(0); i < counted.size(); ++i) {
 		cout<<"Kmers  found from file:	" << i << "	" <<intToString(counted[i])  << endl;
 		// cout<<"Card  of file:	" << i << "	" << cardinalities[i]  << endl;
 		cout<<"Completness % for file:	" << i << "	" << (double)100 * counted[i] / cardinalities[i] << endl;
 	}
 }
+
+
 
 
 int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
@@ -509,7 +568,7 @@ int main(int argc, char** argv) {
 	cout<<"VENN EVALUATION"<<endl;
 	vector<uint64_t> venn(Venn_evaluation(map, inputRef,1<<(cardinalities.size())));
 	cout<<"Completness EVALUATION"<<endl;
-	evaluate_completness(cardinalities, venn);
+	evaluate_completness(cardinalities, venn, cardinalities.size());
 	cout<<"BREAKS EVALUATION"<<endl;
 	count_break_and_errors(map, inputRef);
 	// cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
