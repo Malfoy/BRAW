@@ -61,12 +61,27 @@ bool is_set(int indice, color c) {
 }
 
 
-void print_color(color c, int n){
+string get_color_code(color c, int n){
+	string res="";
+	for(int i(0);i<n;++i){
+		// cout<<c%2;
+		if (c%2) res+= '1';
+		else  res+= '0';
+		c>>=1;
+	}
+	return res;
+}
+
+
+string print_color(color c, int n){
+	string res="";
 	for(int i(0);i<n;++i){
 		cout<<c%2;
+		res += c%2;
 		c>>=1;
 	}
 	cout<<" "<<flush;
+	return res;
 }
 
 
@@ -341,12 +356,21 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 /**
  * prints the cardinality of each color
  */
-void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<uint64_t>& venn) {
+void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<uint64_t>& venn, int size_result, const string& venout_file_name = "venn_out.txt") {
+	
+	ofstream out(venout_file_name);
+	if (not out.good()) {
+		cout << "Problem opening file:" << venout_file_name << " for writing the venn resutls"<<endl;
+		exit(1);
+	}
+
 	vector<uint64_t> counted(cardinalities.size());
 	cout<<"Venn:	"<<endl;
+	out<<"#Venn:	"<<endl;
 	for (uint64_t i(0); i < venn.size(); ++i) {
-		// print_color(i,2);
-		cout<<" "<<intToString(venn[i])<<endl;
+		string colors = get_color_code(i,size_result);
+		cout<<colors<<" "<<intToString(venn[i])<<endl;
+		out<<colors<<" "<<venn[i]<<endl;
 		uint64_t i_bin(i);
 		uint64_t id(0);
 		while (i_bin != 0) {
@@ -357,12 +381,15 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 			++id;
 		}
 	}
+	out.close();
 	for (uint64_t i(0); i < counted.size(); ++i) {
 		cout<<"Kmers  found from file:	" << i << "	" <<intToString(counted[i])  << endl;
 		// cout<<"Card  of file:	" << i << "	" << cardinalities[i]  << endl;
 		cout<<"Completness % for file:	" << i << "	" << (double)100 * counted[i] / cardinalities[i] << endl;
 	}
 }
+
+
 
 
 int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
@@ -541,7 +568,7 @@ int main(int argc, char** argv) {
 	cout<<"VENN EVALUATION"<<endl;
 	vector<uint64_t> venn(Venn_evaluation(map, inputRef,1<<(cardinalities.size())));
 	cout<<"Completness EVALUATION"<<endl;
-	evaluate_completness(cardinalities, venn);
+	evaluate_completness(cardinalities, venn, cardinalities.size());
 	cout<<"BREAKS EVALUATION"<<endl;
 	count_break_and_errors(map, inputRef);
 	// cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
