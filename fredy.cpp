@@ -102,6 +102,7 @@ bool is_included(color c1, color c2) {
 }
 
 
+
 // optimisable (see eg BankBinary from GATB)
 kmer str2num(const string& str) {
 	kmer res(0);
@@ -426,7 +427,7 @@ int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 
 
 
-int64_t error_in_contigs(const string& ref,Map map[]){
+int64_t error_in_contigs_kmers(const string& ref,Map map[]){
 	int64_t result(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
 	uint Hache(hash64shift(canon) % 16);
@@ -454,8 +455,54 @@ int64_t error_in_contigs(const string& ref,Map map[]){
 
 
 
+int64_t error_in_contigs_positions(const string& ref,Map map[]){
+	int64_t result(0);
+	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	color c(0);
+	uint j(0);
+	if (map[Hache].count(canon) != 0) {
+		c = map[Hache][canon].first;
+		if (c == 0) {
+			cout<<"SHOULD NOT HAPPEN WTF"<<endl;
+		}
+	}else{
+		result++;
+		j+=k;
+		if(j+1+k>=ref.size()){
+			return result;
+		}
+		seq=str2num(ref.substr(j+1,k));
+		rcSeq=rcb(seq, k);
+		canon=min(seq,rcSeq);
+	}
+	for (; j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			c = map[Hache][canon].first;
+			if (c ==0) {
+				cout<<"SHOULD NOT HAPPEN WTF"<<endl;
+			}
+		}else{
+			result++;
+			j+=k;
+			if(j+1+k>=ref.size()){
+				return result;
+			}
+			seq=str2num(ref.substr(j+1,k));
+			rcSeq=rcb(seq, k);
+			canon=min(seq,rcSeq);
+		}
+	}
+	return result;
+}
 
-int64_t phasing_error_in_contigs(const string& ref,Map map[]){
+
+
+int64_t get_major_color(const string& ref,Map map[]){
 	vector<int> color_count(color_number,0);
 	int64_t total(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
@@ -485,9 +532,93 @@ int64_t phasing_error_in_contigs(const string& ref,Map map[]){
 		}
 		total++;
 	}
-	// cout<<*max_element(color_count.begin(),color_count.end())<<endl;
-	// cout<<total<<endl;
-	// cin.get();
+	int64_t max(0),max_id(0);
+	for(int i(0);i<color_number;++i){
+		if(color_count[i]>max){
+			max=color_count[i];
+			max_id=i;
+		}
+	}
+	return max_id;
+}
+
+
+
+int64_t phasing_error_in_contigs_positions(const string& ref,Map map[]){
+	vector<int> color_count(color_number,0);
+	int result(0);
+	int64_t mc(get_major_color(ref,map));
+	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	uint j(0);
+	if (map[Hache].count(canon) != 0) {
+		color c = map[Hache][canon].first;
+		if(not is_set(mc,c)){
+			++result;
+			j+=k;
+			if(j+1+k>=ref.size()){
+				return result;
+			}
+			seq=str2num(ref.substr(j+1,k));
+			rcSeq=rcb(seq, k);
+			canon=min(seq,rcSeq);;
+		}
+	}
+	for (; j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			color c = map[Hache][canon].first;
+			if(not is_set(mc,c)){
+				++result;
+				j+=k;
+				if(j+1+k>=ref.size()){
+					return result;
+				}
+				seq=str2num(ref.substr(j+1,k));
+				rcSeq=rcb(seq, k);
+				canon=min(seq,rcSeq);
+			}
+		}
+	}
+	return result;
+}
+
+
+
+
+int64_t phasing_error_in_contigs_kmers(const string& ref,Map map[]){
+	vector<int> color_count(color_number,0);
+	int64_t total(0);
+	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
+	uint Hache(hash64shift(canon) % 16);
+	string colorstr;
+	if (map[Hache].count(canon) != 0) {
+		colorstr=get_color_code( map[Hache][canon].first);
+		for(int i(0);i<color_number;++i){
+			if(colorstr[i]=='1'){
+				color_count[i]++;
+			}
+		}
+		total++;
+	}
+	for (uint j(0); j + k < ref.size(); ++j) {
+		updateK(seq, ref[j + k]);
+		updateRCK(rcSeq, ref[j + k]);
+		canon = (min(seq, rcSeq));
+		uint Hache(hash64shift(canon) % 16);
+		if (map[Hache].count(canon) != 0) {
+			colorstr=get_color_code( map[Hache][canon].first);
+			for(int i(0);i<color_number;++i){
+				if(colorstr[i]=='1'){
+					color_count[i]++;
+				}
+			}
+		}
+		total++;
+	}
 	return total - *max_element(color_count.begin(),color_count.end());
 }
 
@@ -511,7 +642,7 @@ void count_break_and_errors(Map map[], const string& file_name) {
 		cout << "Problem with ref file opening:" << file_name << endl;
 		exit(1);
 	}
-	#pragma omp parallel
+	// #pragma omp parallel
 	while (not in.eof()) {
 		string ref, useless;
 		#pragma omp critical(file_ref)
@@ -522,8 +653,9 @@ void count_break_and_errors(Map map[], const string& file_name) {
 		if (ref.size()>(uint)k) {
 			total_contigs++;
 			total_nuc+=ref.size();
-			int64_t local_errors=error_in_contigs(ref,map)/k;
-			int64_t local_phasing_errors=phasing_error_in_contigs(ref,map)/k-local_errors;
+			// int64_t local_errors=error_in_contigs(ref,map);
+			int64_t local_errors=error_in_contigs_positions(ref,map);
+			int64_t local_phasing_errors=phasing_error_in_contigs_positions(ref,map);
 			bool broke(false);
 			uint64_t local_breaks(0);
 			int64_t position(0);
