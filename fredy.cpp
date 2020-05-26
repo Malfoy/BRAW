@@ -642,7 +642,7 @@ void count_break_and_errors(Map map[], const string& file_name) {
 		cout << "Problem with ref file opening:" << file_name << endl;
 		exit(1);
 	}
-	// #pragma omp parallel
+	#pragma omp parallel
 	while (not in.eof()) {
 		string ref, useless;
 		#pragma omp critical(file_ref)
