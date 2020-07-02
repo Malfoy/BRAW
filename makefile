@@ -5,9 +5,16 @@ LDFLAGS=-flto -lpthread -fopenmp -lz  -Isparsepp  -flto
 
 
 
-EXEC=fredy refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter clean_homopoly insertErrors
+EXEC=fredy refSimulator n50 fa2fq unitigEvaluator unitigEvaluator_fast oneLine oneLineBreak getLargeSequences split sequenceEvaluator cluster2reads fq2fa correctionEvaluator simulator interleaver RC pairedSimulator badvisor fractionFile sortByHeader sort_by_size DBGSplitter getReadsFromHeader read_splitter clean_homopoly insertErrors random_sequence
 
 all: $(EXEC)
+
+
+random_sequence:   random_sequence.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+random_sequence.o: randomSeq.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 fredy:   fredy.o
 	$(CC) -o $@ $^ $(LDFLAGS)
