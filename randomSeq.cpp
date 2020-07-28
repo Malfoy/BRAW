@@ -8,9 +8,15 @@
 using namespace std;
 
 
+static uint32_t seed;
+
+uint32_t xs(uint32_t& y){
+	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
+}
+
 
 char randNucle(char c){
-	switch (rand()%4){
+	switch (xs(seed)%4){
 		case 0:
 			if(c!='A'){
 				return 'A';
@@ -34,7 +40,7 @@ char randNucle(char c){
 
 
 char randNuc(){
-	switch (rand()%4){
+	switch (xs(seed)%4){
 		case 0:
 				return 'A';
 		case 1:
@@ -74,6 +80,7 @@ int main(int argc, char ** argv){
 	for(i=0;i<seqnumber/1000;++i){
 		string rs;
 		srand (time(NULL));
+		seed=(rand());
 		for(int j(0);j<1000;++j){
 			rs=random_sequence(basesnumber,rs);
 			#pragma omp critical
