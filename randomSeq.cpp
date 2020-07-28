@@ -18,8 +18,14 @@ uint32_t xs(uint32_t& y){
 
 
 
+__uint128_t xs(__uint128_t& g_lehmer64_state) {
+  g_lehmer64_state *= 0xda942042e4dd58b5;
+  return g_lehmer64_state >> 64;
+}
 
-char randNuc(uint32_t& seed){
+
+
+char randNuc(__uint128_t& seed){
 	switch (xs(seed)%4){
 		case 0:
 				return 'A';
@@ -35,7 +41,7 @@ char randNuc(uint32_t& seed){
 
 
 
-string random_sequence(uint64_t basesnumber,string& res,uint32_t& seed){
+string random_sequence(uint64_t basesnumber,string& res,__uint128_t& seed){
   res.clear();
   for(uint i(0);i<basesnumber;++i){
     res.push_back(randNuc(seed));
@@ -54,12 +60,12 @@ int main(int argc, char ** argv){
 	uint64_t basesnumber(stoi(argv[1]));
 	uint64_t seqnumber(stoi(argv[2]));
 	srand (time(NULL));
-	
+
 	uint i(0);
 	#pragma omp parallel for
 	for(i=0;i<seqnumber/1000;++i){
 		string rs;
-		uint32_t seed=(rand());
+		__uint128_t seed=(rand());
 		for(int j(0);j<1000;++j){
 			rs=random_sequence(basesnumber,rs,seed);
 			#pragma omp critical
