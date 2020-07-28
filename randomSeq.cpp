@@ -68,12 +68,18 @@ int main(int argc, char ** argv){
 	uint64_t basesnumber(stoi(argv[1]));
 	uint64_t seqnumber(stoi(argv[2]));
 
-	srand (time(NULL));
-
-	string useless;
-
-  for(uint i(0);i<seqnumber;++i){
-    cout<<">1\n";
-    cout<<random_sequence(basesnumber,useless)<<'\n';
-  }
+	
+	uint i(0);
+	#pragma omp parallel for
+	for(i=0;i<seqnumber/1000;++i){
+		string rs;
+		srand (time(NULL));
+		for(int j(0);j<1000;++j){
+			rs=random_sequence(basesnumber,rs);
+			#pragma omp critical
+			{
+				cout<<">1\n"<<rs<<'\n';
+			}
+		}
+	}
 }
