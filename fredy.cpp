@@ -624,7 +624,7 @@ int64_t phasing_error_in_contigs_kmers(const string& ref,Map map[]){
 
 
 
-void count_break_and_errors(Map map[], const string& file_name) {
+void count_break_and_errors(Map map[], const string& file_name, const bool printBrokenContigs) {
 	uint64_t broke_contigs(0);
 	uint64_t breaks(0);
 	uint64_t Erroneous_contigs(0);
@@ -662,7 +662,9 @@ void count_break_and_errors(Map map[], const string& file_name) {
 			while(position>=0){
 				position=contig_break(ref,position, map);
 				if(position>0){
+                                    if (printBrokenContigs == true){
                                         cout << "Phase break in " << useless << endl;
+                                    }
 					broke=true;
 					local_breaks++;
 					position+=1;
@@ -745,15 +747,25 @@ void count_break_and_errors(Map map[], const string& file_name) {
 
 
 
-
-
 int main(int argc, char** argv) {
 	if (argc < 3) {
-		cout << "[Reference file of file] [query file] (kmer size) (perform 2^n pass) " << endl;
+                cout << "[Reference file of file] [query file] (kmer size) (perform 2^n pass) (--printBrokenContigs) " << endl;
 		exit(0);
 	}
+
+        bool printBrokenContig = false; // boolean indicating if the user wants fredy to print the names of the contig on which it finds errors
 	if (argc > 3) {
-		k = (stoi(argv[3]));
+            for (int i = 0 ; i < argc ; i++){
+                if (argv[i] > "--printBrokenContigs"){
+                    printBrokenContig = true;
+                }
+                else {
+                    cout << argv[i] << endl;
+                }
+            }
+            if (printBrokenContig == false || argc > 4){
+                k = (stoi(argv[3]));
+            }
 	}
 	offsetUpdateAnchors <<= (2 * (k));
 	auto start = chrono::system_clock::now();
@@ -768,7 +780,7 @@ int main(int argc, char** argv) {
 	cout<<"Completness EVALUATION"<<endl;
 	evaluate_completness(cardinalities, venn, cardinalities.size());
 	cout<<"BREAKS EVALUATION"<<endl;
-	count_break_and_errors(map, inputRef);
+        count_break_and_errors(map, inputRef, printBrokenContig);
 	// cout<<"Contigs with breaks:	"<<intToString(breaks.first)<<"	Phasing breaks (total):	" << intToString(breaks.second )<< endl;
 	// cout<<"ERRORS EVALUATION"<<endl;
 	// auto errors(count_errors(map, inputRef));
