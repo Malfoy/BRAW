@@ -662,6 +662,7 @@ void count_break_and_errors(Map map[], const string& file_name) {
 			while(position>=0){
 				position=contig_break(ref,position, map);
 				if(position>0){
+                                        cout << "Phase break in " << useless << endl;
 					broke=true;
 					local_breaks++;
 					position+=1;
