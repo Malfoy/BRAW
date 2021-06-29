@@ -12,27 +12,46 @@ using namespace std;
 
 
 int main(int argc, char ** argv){
+	bool streaming(false);
 	if(argc<2){
-		cout<<"[Fasta file]"<<endl;
-		exit(0);
+		streaming=true;
 	}
-	string input(argv[1]);
-	srand (time(NULL));
-	string ref, useless,header;
-	ifstream in(input);
-	vector<uint> lengths;
-	while(not in.eof()){
-		getline(in,header);
-		getline(in,ref);
-		getline(in,useless);
-		getline(in,useless);
-		if(header.size()>1){
-			if(ref.size()>1){
-				cout<<">"+header.substr(1)<<"\n";
-				cout<<ref<<"\n";
+	if(not streaming){
+		string input(argv[1]);
+		string ref, useless,header;
+		ifstream in(input);
+		while(not in.eof()){
+			getline(in,header);
+			getline(in,ref);
+			getline(in,useless);
+			getline(in,useless);
+			if(header.size()>1){
+				if(ref.size()>1){
+					cout<<">"+header.substr(1)<<"\n";
+					cout<<ref<<"\n";
+				}else{
+					cout<<">"+header.substr(1)<<"\n";
+					cout<<ref<<"\n";
+				}
+			}
+		}
+	}else{
+		string ref, useless,header;
+		while(true){
+			getline(cin,header);
+			getline(cin,ref);
+			getline(cin,useless);
+			getline(cin,useless);
+			if(header.size()>0){
+				if(ref.size()>0){
+					cout<<">"+header.substr(1)<<"\n";
+					cout<<ref<<"\n";
+				}else{
+					cout<<">"+header.substr(1)<<"\n";
+					cout<<ref<<"\n";
+				}
 			}else{
-				cout<<">"+header.substr(1)<<"\n";
-				cout<<ref<<"\n";
+				return 0;
 			}
 		}
 	}
