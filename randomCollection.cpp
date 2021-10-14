@@ -65,16 +65,16 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 
 	uint i(0);
-	// #pragma omp parallel for
+	#pragma omp parallel for
 	for(i=0;i<genomes;++i){
         zstr::ofstream out(prefix+to_string(i)+".fa.gz");
-        cout<<prefix+to_string(i)+".fa.gz"<<endl;
+		#pragma omp critical
+		{
+			cout<<prefix+to_string(i)+".fa.gz"<<endl;
+		}
 		string rs;
 		__uint128_t seed=(rand());
         rs=random_sequence(size,rs,seed);
-        #pragma omp critical
-        {
-            out<<">1\n"<<rs<<'\n';
-        }
+		out<<">1\n"<<rs<<'\n';
 	}
 }
