@@ -64,7 +64,7 @@ class z_stream_wrapper
     : public z_stream
 {
 public:
-    z_stream_wrapper(bool _is_input = true, int _level = Z_DEFAULT_COMPRESSION)
+    z_stream_wrapper(bool _is_input = true, int _level = 1)
         : is_input(_is_input)
     {
         this->zalloc = Z_NULL;
@@ -227,7 +227,7 @@ class ostreambuf
 {
 public:
     ostreambuf(std::streambuf * _sbuf_p,
-               std::size_t _buff_size = default_buff_size, int _level = Z_DEFAULT_COMPRESSION)
+               std::size_t _buff_size = default_buff_size, int _level = 1)
         : sbuf_p(_sbuf_p),
           zstrm_p(new detail::z_stream_wrapper(false, _level)),
           buff_size(_buff_size)
