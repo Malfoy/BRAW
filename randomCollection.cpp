@@ -1,3 +1,5 @@
+#include "strict_fstream.hpp"
+#include "zstr.hpp"
 #include <fstream>
 #include <cstring>
 #include <string>
@@ -65,8 +67,8 @@ int main(int argc, char ** argv){
 	uint i(0);
 	// #pragma omp parallel for
 	for(i=0;i<genomes;++i){
-        ofstream out(prefix+to_string(i));
-        cout<<prefix+to_string(i)<<endl;
+        zstr::ofstream out(prefix+to_string(i)+".fa.gz");
+        cout<<prefix+to_string(i)+".fa.gz"<<endl;
 		string rs;
 		__uint128_t seed=(rand());
         rs=random_sequence(size,rs,seed);
