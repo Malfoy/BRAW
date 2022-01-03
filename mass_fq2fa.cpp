@@ -79,16 +79,25 @@ int main(int argc, char ** argv){
         cout<<"I keep the headers"<<endl;
 	}
     string input(argv[1]);
-    string file;
+    
     ifstream in(input);
-    while(not in.eof()){
-        getline(in,file);
+    #pragma omp parallel
+    {
+        string file;
+        while(not in.eof()){
+        #pragma omp critical (inputfile)
+        {
+            getline(in,file);
+        }
         if(file.size()<2){continue;}
         if(keep_header){
             fq2fa_file_keep_header(file);
         }else{
             fq2fa_file_no_header(file);
         }
+        remove(file.c_str());
     }
+    }
+    
     
 }
