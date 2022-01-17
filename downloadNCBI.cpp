@@ -43,14 +43,19 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	string line;
-	ifstream in(input);
 	uint i(0);
-	while(not in.eof()){
-        getline(in,line);
-        download_ncbi(line);
-        i++;
-        cout<<"Got "<<i<<" files"<<endl;
-	}
+	ifstream in(input);
+    #pragma omp parallel
+    {
+        string line;
+        while(not in.eof()){
+            getline(in,line);
+            download_ncbi(line);
+            #pragma omp atomic
+            i++;
+            //~ #pragma omp critical (out)
+            //~ cout<<"Got "<<i<<" files"<<endl;
+        }
+    }
     cout<<"DONE! Got "<<i<<" files"<<endl;
 }
