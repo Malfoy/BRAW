@@ -49,7 +49,10 @@ int main(int argc, char ** argv){
     {
         string line;
         while(not in.eof()){
-            getline(in,line);
+            #pragma omp critical (in)
+            {
+                getline(in,line);
+            }
             download_ncbi(line);
             #pragma omp atomic
             i++;
