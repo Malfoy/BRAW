@@ -61,9 +61,9 @@ int main(int argc, char** argv){
             if(ligne.size()>0){
                 if (ligne[0] == '>'){
                     found=false;
-                    // name_seq_fasta=split_1(ligne.substr(1, ligne.size()-1),' ');
+                    name_seq_fasta=split_1(ligne.substr(1, ligne.size()-1),' ');
 
-                    if (names_seq[ligne]) {
+                    if (names_seq[name_seq_fasta]) {
                         found=true;
                         // cout<<"FOUND"<<endl;
                         cout << ligne << '\n';
