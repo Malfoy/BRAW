@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include "zstr.hpp"
 
 
 
@@ -21,7 +22,7 @@ inline uint32_t xs ( uint32_t x ) {
 
 
 char randNucle(char c='N'){
-	return 'N';
+	//return 'N';
 	switch (rand()%4){
 	//~ seed=xs(seed)%4
 	//~ switch (seed){
@@ -145,24 +146,39 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 }
 
 
-
+zstr::ifstream* openFile(const string& input_file){
+	zstr::ifstream* input_stream = new zstr::ifstream(input_file);
+	if(not input_stream-> good()){
+		cout << "Problem with file opening" << endl;
+        return NULL;
+	}
+	return input_stream;
+}
 
 int main(int argc, char ** argv){
 	if(argc<4){
-		cout<<"[read file] [error rate] [prefix]"<<endl;
+		cout<<"[read file] [error rate] [outfile]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
 	srand (time(NULL));
-	ifstream in(input);
+	zstr::ifstream* in = openFile(input);
+	if(in==NULL){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
+    if(not in->good()){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
 	uint errorRate((stof(argv[2]))*10000);
 	string prefix(argv[3]);
 	string useless, ref,read,pread;
 	uint indice_header(0);
-	ofstream out(prefix+".fa");
-	while(not in.eof()){
-		getline(in,useless);
-		getline(in,read);
+	zstr::ofstream* out = (new zstr::ofstream(prefix));
+	while(not in->eof()){
+		getline(*in,useless);
+		getline(*in,read);
 		if(not useless.empty()){
 			if(not read.empty()){
 				for(uint i(0);i<read.size();++i){
@@ -170,15 +186,20 @@ int main(int argc, char ** argv){
 						read[i]=randNucle_respect_cases(read[i]);
 					}
 				}
-				out<<useless<<"\n";
+				useless += "\n";
+				read += "\n";
+				out->write(useless.c_str(), useless.size());
 				indice_header++;
-				out<<read<<"\n";
+				out->write(read.c_str(), read.size());
 			}else{
-				out<<useless<<"\n";
+				useless += "\n";
+				read += "\n";
+				out->write(useless.c_str(), useless.size());
 				indice_header++;
-				out<<read<<"\n";
+				out->write(read.c_str(), read.size());
 			}
 		}
 	}
+	delete out;
 }
 
