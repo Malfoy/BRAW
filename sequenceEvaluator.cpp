@@ -123,7 +123,7 @@ int main(int argc, char ** argv){
 	vector<robin_hood::unordered_map<string,bool>> genomicKmers(1024);
 	vector<robin_hood::unordered_map<string,bool>> seenKmers(1024);
 	vector<omp_lock_t> locks(1024);
-	for(uint i(0);i<1024;++i){
+	for(unsigned int i(0);i<1024;++i){
 		omp_init_lock(&locks[i]);
 	}
 	uint64_t size(0),number(0);

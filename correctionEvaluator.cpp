@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 			pretty_printing=true;
 		}
 	}
-	uint freq_print_reads(1000);
+	unsigned int freq_print_reads(1000);
 	string perfect(argv[1]);
 	bool perfect_FQ(perfect[perfect.size()-1]=='q');
 	string erroneous(argv[2]);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
 		bool corrected(false);
 		bool wrongCorrection(false);
 		string to_print;
-		for(uint i(0);i<perfectRead.first.size();++i){
+		for(unsigned int i(0);i<perfectRead.first.size();++i){
 			++nuc;
 			char p(perfectRead.first[i]);
 			char e(erroneousRead.first[i]);

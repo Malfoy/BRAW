@@ -17,7 +17,7 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	uint length(stoi(argv[2]));
+	unsigned int length(stoi(argv[2]));
 	srand (time(NULL));
 	string ref, useless;
 	ifstream in(input);

@@ -24,7 +24,7 @@ string getLineFasta(ifstream* in){
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -42,7 +42,7 @@ void clean(string& str){
 
 
 int main(int argc, char ** argv){
-	vector<pair<uint,string>> reads;
+	vector<pair<unsigned int,string>> reads;
 	if(argc<2){
 		cout<<"[Fasta file] "<<endl;
 		exit(0);
@@ -55,7 +55,7 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	string header, sequence,line;
 	ifstream in(input);
-	vector<uint> lengths;
+	vector<unsigned int> lengths;
 	while(not in.eof()){
 		getline(in,header);
 		if(header[0]!='>'){continue;}
@@ -72,7 +72,7 @@ int main(int argc, char ** argv){
 	}
 
 	sort(reads.begin(),reads.end());
-	for(uint i(0);i<reads.size();++i){
+	for(unsigned int i(0);i<reads.size();++i){
 		cout<<">"<<reads[i].first<<"\n"<<reads[i].second<<"\n";
 	}
 }

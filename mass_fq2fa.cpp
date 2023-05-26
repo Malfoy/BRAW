@@ -14,7 +14,7 @@ using namespace std;
 
 
 string fq2fa_name(string str){
-    for(uint i=0; i <str.length(); i++){
+    for(unsigned int i=0; i <str.length(); i++){
         if(str[i] == '.'){
             return str.substr(0,i)+".fa.gz";
         }
@@ -79,7 +79,7 @@ int main(int argc, char ** argv){
         cout<<"I keep the headers"<<endl;
 	}
     string input(argv[1]);
-    
+
     ifstream in(input);
     #pragma omp parallel
     {
@@ -98,6 +98,6 @@ int main(int argc, char ** argv){
         remove(file.c_str());
     }
     }
-    
-    
+
+
 }

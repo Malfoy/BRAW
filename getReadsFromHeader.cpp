@@ -13,7 +13,7 @@ using namespace std;
 
 
 
-void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header,uint size_header){
+void get_reads_from_header_file_fastq(const string& file,unordered_set<string>& wanted_header,unsigned int size_header){
 	ifstream in(file);
 	string header_str,read_str,useless;
 	if(not in.good()){
@@ -46,7 +46,7 @@ int main(int argc, char ** argv){
 	string header_file(argv[1]);
 	string file_file(argv[2]);
 	string file_name,header;
-	uint size_header;
+	unsigned int size_header;
 
 	//LOAD WANTED HEADER
 	ifstream in_header(header_file);

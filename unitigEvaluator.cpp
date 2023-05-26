@@ -92,13 +92,13 @@ int main(int argc, char ** argv){
 	auto start = chrono::system_clock::now();
 	string inputUnitig(argv[1]);
 	string inputRef(argv[2]);
-	uint k(stoi(argv[3]));
-	uint n(0);
-	uint nb_cores(stoi(argv[4]));
+	unsigned int k(stoi(argv[3]));
+	unsigned int n(0);
+	unsigned int nb_cores(stoi(argv[4]));
 	if(argc>5){
 		 n=(stoi(argv[5]));
 	}
-	uint nbHash=1<<n;
+	unsigned int nbHash=1<<n;
 	cout<<"I will perform "<<nbHash<<" pass"<<endl;
 	srand (time(NULL));
 
@@ -112,7 +112,7 @@ int main(int argc, char ** argv){
 	for (int i=0; i<1024; i++)
         omp_init_lock(&(lock[i]));
 
-	for(uint HASH(0);HASH<nbHash;++HASH){
+	for(unsigned int HASH(0);HASH<nbHash;++HASH){
 		vector<sparse_hash_map<string, bool>> genomicKmers;
 		genomicKmers.resize(1024);
 
@@ -126,7 +126,7 @@ int main(int argc, char ** argv){
 					getline(inRef,ref);
 				}
 				if(not ref.empty() and not useless.empty()){
-					for(uint i(0);i+k<=ref.size();++i){
+					for(unsigned int i(0);i+k<=ref.size();++i){
 
 						canon=(getCanonical(ref.substr(i,k)));
 						//~ cerr<<canon<<endl;
@@ -159,7 +159,7 @@ int main(int argc, char ** argv){
 					size+=ref.size();
 					#pragma omp atomic
 					number++;
-					for(uint i(0);i+k<=ref.size();++i){
+					for(unsigned int i(0);i+k<=ref.size();++i){
 						canon=getCanonical(ref.substr(i,k));
 						uint64_t num((str2num(canon)));
 						if(num%nbHash==HASH){

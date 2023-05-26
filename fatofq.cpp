@@ -20,7 +20,7 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	string ref, useless,toprint;
 	ifstream in(input);
-	vector<uint> lengths;
+	vector<unsigned int> lengths;
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);

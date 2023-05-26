@@ -102,11 +102,11 @@ __uint128_t nuc2intrc(char c){
 }
 
 
-__uint128_t rcb(__uint128_t min,uint n){
+__uint128_t rcb(__uint128_t min,unsigned int n){
 	__uint128_t res(0);
 	__uint128_t offset(1);
 	offset<<=(2*n-2);
-	for(uint i(0); i<n;++i){
+	for(unsigned int i(0); i<n;++i){
 		res+=(3-(min%4))*offset;
 		min>>=2;
 		offset>>=2;
@@ -155,15 +155,15 @@ int main(int argc, char ** argv){
 	auto start = chrono::system_clock::now();
 	string inputFILE(argv[1]);
 	string inputRef(argv[2]);
-	uint k(stoi(argv[3]));
+	unsigned int k(stoi(argv[3]));
 	anchorSize=k;
 	offsetUpdateAnchors=1;
 	offsetUpdateAnchors<<=(2*(anchorSize));
-	uint n(0);
+	unsigned int n(0);
 	if(argc>4){
 		 n=(stoi(argv[4]));
 	}
-	uint nbHash=1<<n;
+	unsigned int nbHash=1<<n;
 	//~ cout<<"number of pass"<<nbHash<<endl;
 	srand (time(NULL));
 	ifstream inRef(inputRef),inFILE(inputFILE);
@@ -180,7 +180,7 @@ int main(int argc, char ** argv){
 	vector<unordered_map<__uint128_t, bool,KeyHasher>> genomicKmers;
 	array<mutex, 1024> nutex;
 	genomicKmers.resize(nbHash);
-	//~ for(uint HASH(0);HASH<nbHash;++HASH)
+	//~ for(unsigned int HASH(0);HASH<nbHash;++HASH)
 	{
 
 		#pragma omp parallel num_threads(20)
@@ -193,7 +193,7 @@ int main(int argc, char ** argv){
 			}
 			if(not ref.empty() and not useless.empty()){
 				__uint128_t seq(str2num(ref.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
-				uint Hache(bhash((uint64_t)canon)%nbHash);
+				unsigned int Hache(bhash((uint64_t)canon)%nbHash);
 				//~ #pragma omp critical(Hache)
 				{
 					nutex[Hache].lock();
@@ -203,11 +203,11 @@ int main(int argc, char ** argv){
 				}
 				#pragma omp atomic
 				genomicKmersNum++;
-				for(uint j(0);j+anchorSize<ref.size();++j){
+				for(unsigned int j(0);j+anchorSize<ref.size();++j){
 					updateK(seq,ref[j+anchorSize]);
 					updateRCK(rcSeq,ref[j+anchorSize]);
 					canon=(min(seq, rcSeq));
-					uint Hache(bhash((uint64_t)canon)%nbHash);
+					unsigned int Hache(bhash((uint64_t)canon)%nbHash);
 					//~ #pragma omp critical(Hache)
 					{
 						nutex[Hache].lock();
@@ -241,11 +241,11 @@ int main(int argc, char ** argv){
 			}
 
 
-			uint t;
+			unsigned int t;
 			#pragma omp parallel for num_threads(20)
 			for(t=0;t<20;++t){
 				string seq_str,useless;
-				uint size_local(0),number_local(0),FP_local(0),TP_local(0);
+				unsigned int size_local(0),number_local(0),FP_local(0),TP_local(0);
 				while(not inUnitigs.eof()){
 
 					#pragma omp critical(read_file)
@@ -258,18 +258,18 @@ int main(int argc, char ** argv){
 						number_local++;
 						__uint128_t seq(str2num(seq_str.substr(0,anchorSize))),rcSeq(rcb(seq,anchorSize)),canon(min(seq,rcSeq));
 						//~ if(bhash((uint64_t)canon)%nbHash==HASH
-							uint Hache(bhash((uint64_t)canon)%nbHash);
+							unsigned int Hache(bhash((uint64_t)canon)%nbHash);
 							if(genomicKmers[Hache].count(canon)==0){
 								FP_local++;
 							}else{
 								TP_local++;
 							}
 						//~ }
-						for(uint j(0);j+anchorSize<seq_str.size();++j){
+						for(unsigned int j(0);j+anchorSize<seq_str.size();++j){
 							updateK(seq,seq_str[j+anchorSize]);
 							updateRCK(rcSeq,seq_str[j+anchorSize]);
 							canon=(min(seq, rcSeq));
-							uint Hache(bhash((uint64_t)canon)%nbHash);
+							unsigned int Hache(bhash((uint64_t)canon)%nbHash);
 							//~ if(bhash((uint64_t)canon)%nbHash==HASH){
 								if(genomicKmers[Hache].count(canon)==0){
 									FP_local++;
