@@ -62,7 +62,7 @@ int main(int argc, char ** argv){
 		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<"[Out file name]"<<endl;
 		exit(0);
 	}
-	uint snp1(0),snp2(0);
+	unsigned int snp1(0),snp2(0);
 	string input(argv[1]);
 	float hetero(stof(argv[2])/2);
 	string outName(argv[3]);
@@ -82,17 +82,17 @@ int main(int argc, char ** argv){
         cout<<"Can't open file: "<<input<<endl;
         return -1;
     }
-	//~ uint rate(10);
+	//~ unsigned int rate(10);
 	string useless, ref,ref2,ref3;
 	//~ cout<<fileName<<endl;
 	zstr::ofstream* out = (new zstr::ofstream(outName));
-	uint nimp(0);
+	unsigned int nimp(0);
 	while(not in->eof()){
 		getline(*in,useless);
 		getline(*in,ref);
 		if(not ref.empty() and not useless.empty()){
 			ref3=ref2=ref;
-			for(uint i(0);i<ref.size();++i){
+			for(unsigned int i(0);i<ref.size();++i){
 				if(rand()%heteroRate==0){
 					ref2[i]=randNucle(ref[i]);
 					snp1++;

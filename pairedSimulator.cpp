@@ -80,12 +80,12 @@ int main(int argc, char ** argv){
         exit(0);
     }
     string input(argv[1]);
-    uint length(stof(argv[2]));
-    uint fragmentSize(stof(argv[3]));
+    unsigned int length(stof(argv[2]));
+    unsigned int fragmentSize(stof(argv[3]));
     double coverage(stof(argv[4]));
     srand (time(NULL));
     ifstream in(input);
-    uint errorRate(1/(stof(argv[5])));
+    unsigned int errorRate(1/(stof(argv[5])));
     string prefix(argv[6]);
     string type(argv[7]);
     bool matePair(false);
@@ -101,7 +101,7 @@ int main(int argc, char ** argv){
         perfect=true;
     }
 
-    uint i(0);
+    unsigned int i(0);
     ofstream out(prefix+".fa");
     ofstream outperfect;
     if(perfect){
@@ -128,14 +128,14 @@ int main(int argc, char ** argv){
                         seed=(rand());
                     }
                     //produce a read
-                    uint position=xs(seed)%ref.size();
+                    unsigned int position=xs(seed)%ref.size();
                     if(position+fragmentSize<=ref.size()){
                         bool valid(true);
-                        uint error(0);
+                        unsigned int error(0);
 
                         pread=ref.substr(position,length);
                         read=pread;
-                        for(uint i(0);i<read.size();++i){
+                        for(unsigned int i(0);i<read.size();++i){
                             if(read[i]=='N'){valid=false;break;}
                             if(xs(seed)%errorRate==0){
                                 read[i]=randNucle(read[i]);
@@ -169,7 +169,7 @@ int main(int argc, char ** argv){
                         error=(0);
                         pread=ref.substr(position+fragmentSize-length,length);
                         read=pread;
-                        for(uint i(0);i<read.size();++i){
+                        for(unsigned int i(0);i<read.size();++i){
                             if(read[i]=='N'){valid=false;break;}
                             if(xs(seed)%errorRate==0){
                                 read[i]=randNucle(read[i]);

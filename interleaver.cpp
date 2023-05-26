@@ -29,7 +29,7 @@ int main(int argc, char ** argv){
 	istream* in2;
 	in=new zstr::ifstream(input);
 	in2=new zstr::ifstream(input2);
-	vector<uint> lengths;
+	vector<unsigned int> lengths;
 	while(not in->eof()){
 		getline(*in,head);
 		getline(*in2,head2);

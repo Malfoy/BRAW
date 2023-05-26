@@ -45,7 +45,7 @@ char randNuc(__uint128_t& seed){
 
 string random_sequence(uint64_t basesnumber,string& res,__uint128_t& seed){
   res.clear();
-  for(uint i(0);i<basesnumber;++i){
+  for(unsigned int i(0);i<basesnumber;++i){
     res.push_back(randNuc(seed));
   }
   return res;
@@ -64,7 +64,7 @@ int main(int argc, char ** argv){
     string  prefix((argv[3]));
 	srand (time(NULL));
 
-	uint i(0);
+	unsigned int i(0);
 	#pragma omp parallel for
 	for(i=0;i<genomes;++i){
         zstr::ofstream out(prefix+to_string(i)+".fa.gz");

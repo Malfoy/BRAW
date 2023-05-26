@@ -26,7 +26,7 @@ string getLineFasta(ifstream* in){
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -49,7 +49,7 @@ void clean(string& str){
 
 string remove_lowercase(string& str){
 	string res;
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			//~ case 'a':break;
 			case 'A':res+='A';break;
@@ -82,11 +82,11 @@ int main(int argc, char ** argv){
 			headercleaning=true;
 		}
 	}
-	uint min_size(0);
+	unsigned int min_size(0);
 	if(argc>3){
 		min_size=(stoi(argv[3]));
 	}
-	//~ uint count(0);
+	//~ unsigned int count(0);
 	srand (time(NULL));
 	string header, sequence,line;
 	zstr::ifstream in(input);

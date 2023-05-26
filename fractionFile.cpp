@@ -24,7 +24,7 @@ string getLineFasta(ifstream* in){
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -50,7 +50,7 @@ int main(int argc, char ** argv){
 	}
 	string input(argv[1]);
 	bool cleaning(false),fastqmode(false);
-	uint frac(10);
+	unsigned int frac(10);
 	if(argc>2){
 		frac=stoi(argv[2]);
 	}
@@ -60,8 +60,8 @@ int main(int argc, char ** argv){
 	srand (time(NULL));
 	string header, sequence,line;
 	ifstream in(input);
-	vector<uint> lengths;
-	uint i(0);
+	vector<unsigned int> lengths;
+	unsigned int i(0);
 	while(not in.eof()){
 		if(fastqmode){
 			getline(in,header);

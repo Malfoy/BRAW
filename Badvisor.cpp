@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
 	string readsFile(argv[1]),line,lineF0,lineF1;
 	vector<vector<uint64_t>> histograms;
 	vector<uint64_t> numberKmerDistinct,minimumList;
-	uint frac(1000);
-	for(uint k(21);k<201;k+=10){
+	unsigned int frac(1000);
+	for(unsigned int k(21);k<201;k+=10){
 		ifstream stream(readsFile+"_k"+to_string(k)+".hist");
 		if(not stream.is_open()){
 			cout<<"no file "+readsFile+"_k"+to_string(k)+".hist"<<endl;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 	}
 	bool cont(true);
 	for(int i(0);i<histograms.size() and cont;++i){
-		for(uint ii(0);ii<histograms[i].size() and cont;++ii){
+		for(unsigned int ii(0);ii<histograms[i].size() and cont;++ii){
 			if(histograms[i][ii]<=histograms[i][ii+1]){
 				if(ii>=5){
 					minimumList.push_back(ii);

@@ -60,7 +60,7 @@ string getCanonical(const string& str){
 
 uint64_t str2num(const string& str){
 	uint64_t res(0);
-	for(uint i(0);i<str.size();i++){
+	for(unsigned int i(0);i<str.size();i++){
 		res<<=2;
 		switch (str[i]){
 			case 'A':res+=0;break;
@@ -94,8 +94,8 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string inputUnitig(argv[1]);
-	uint k(stoi(argv[2]));
-	uint m(stoi(argv[3]));
+	unsigned int k(stoi(argv[2]));
+	unsigned int m(stoi(argv[3]));
 	srand (time(NULL));
 	string ref, useless;
 	ifstream inUnitigs(inputUnitig);
@@ -111,14 +111,14 @@ int main(int argc, char ** argv){
 		//FOREACH UNITIG
 		if(not ref.empty() and not useless.empty()){
 			super_minimizer=kmer=minimizer=mmer="";
-			uint last_position(0);
+			unsigned int last_position(0);
 			//FOREACH KMER
-			uint i(0);
+			unsigned int i(0);
 			for(;i+k<=ref.size();++i){
 				kmer=getCanonical(ref.substr(i,k));
 				minimizer=(getCanonical(kmer.substr(0,m)));
 				//COMPUTE KMER MINIMIZER
-				for(uint j(1);j+m<=kmer.size();++j){
+				for(unsigned int j(1);j+m<=kmer.size();++j){
 					mmer=getCanonical(kmer.substr(j,m));
 					minimizer=min_accordingtoXS(minimizer,mmer);
 				}

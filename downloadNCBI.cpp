@@ -13,8 +13,8 @@ using namespace std;
 
 
 string get_name_ncbi(const string& str){
-  uint lastposition(0);
-  for(uint i(0);i<str.size()-3;++i){
+  unsigned int lastposition(0);
+  for(unsigned int i(0);i<str.size()-3;++i){
     if(str[i]=='/'){
       lastposition=i;
     }
@@ -29,7 +29,7 @@ void download_ncbi(const string& filename){
     //~ cout<<filename<<endl;
     string cmd("wget -q  "+filename+"/"+get_name_ncbi(filename)+"_genomic.fna.gz");
     //~ cout<<cmd<<endl;
-    
+
     system(cmd.c_str());
     //~ cin.get();
 }
@@ -43,7 +43,7 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	uint i(0);
+	unsigned int i(0);
 	ifstream in(input);
     #pragma omp parallel
     {

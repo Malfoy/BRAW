@@ -24,7 +24,7 @@ string getLineFasta(ifstream* in){
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -53,7 +53,7 @@ int main(int argc, char ** argv){
 			cleaning=true;
 		}
 	}
-	uint min_size(0);
+	unsigned int min_size(0);
 	if(argc>3){
 		min_size=(stoi(argv[3]));
 	}
