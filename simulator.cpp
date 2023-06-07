@@ -157,9 +157,9 @@ int main(int argc, char ** argv){
 						}
 					}
 					if(valid){
-						perfect<<">"+to_string(i)<<"\n";
+						perfect<<">"+to_string(position)<<"\n";
 						perfect<<pread<<"\n";
-						out<<">"+to_string(i)<<"\n";
+						out<<">"+to_string(position)<<"\n";
 						out<<read<<"\n";
 						nucProduced+=read.size();
 						++i;
