@@ -130,11 +130,11 @@ kmer str2num(const string& str) {
 /**
  * Reverse complement of a kmer.
  */
-kmer rcb(kmer min, uint n) {
+kmer rcb(kmer min, unsigned int n) {
 	kmer res(0);
 	kmer offset(1);
 	offset <<= (2 * n - 2);
-	for (uint i(0); i < n; ++i) {
+	for (unsigned int i(0); i < n; ++i) {
 		res += (3 - (min % 4)) * offset;
 		min >>= 2;
 		offset >>= 2;
@@ -237,18 +237,18 @@ uint64_t load_reference(Map map[], const string file_name, int reference_number)
 		if (not ref.empty()) {
 			// read all kmers from the ref sequence
 			kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-			uint Hache(hash64shift(canon) % 16);
+			unsigned int Hache(hash64shift(canon) % 16);
 			nutex[Hache].lock();
 			// for this kmer, set its indexed value adding the reference_number
 			set_color(map[Hache][canon].first, reference_number);
 			nutex[Hache].unlock();
 #pragma omp atomic
 			result++;
-			for (uint j(0); j + k < ref.size(); ++j) {
+			for (unsigned int j(0); j + k < ref.size(); ++j) {
 				updateK(seq, ref[j + k]);
 				updateRCK(rcSeq, ref[j + k]);
 				canon = (min(seq, rcSeq));
-				uint Hache(hash64shift(canon) % 16);
+				unsigned int Hache(hash64shift(canon) % 16);
 				nutex[Hache].lock();
 				// for this kmer, set its indexed value adding the reference_number
 				set_color(map[Hache][canon].first, reference_number);
@@ -307,11 +307,11 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 			getline(in, useless);
 			getline(in, ref);
 		}
-		if (ref.size()>=(uint)k) {
+		if (ref.size()>=(unsigned int)k) {
 			kmer seq(str2num(ref.substr(0, k)));
 			kmer rcSeq(rcb(seq, k));
 			kmer canon(min(seq, rcSeq));
-			uint Hache(hash64shift(canon) % 16);
+			unsigned int Hache(hash64shift(canon) % 16);
 			color c(0);
 			bool done=false;
 			nutex[Hache].lock();
@@ -330,11 +330,11 @@ vector<uint64_t> Venn_evaluation(Map map[], const string& file_name, int size_re
 				++result[c];
 			}
 
-			for (uint j(0); j + k < ref.size(); ++j) {
+			for (unsigned int j(0); j + k < ref.size(); ++j) {
 				updateK(seq, ref[j + k]);
 				updateRCK(rcSeq, ref[j + k]);
 				canon = (min(seq, rcSeq));
-				uint Hache(hash64shift(canon) % 16);
+				unsigned int Hache(hash64shift(canon) % 16);
 				nutex[Hache].lock();
 				if (map[Hache].count(canon) != 0) {
 					c = map[Hache][canon].first;
@@ -397,7 +397,7 @@ void evaluate_completness(const vector<uint64_t>& cardinalities, const vector<ui
 
 int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 	kmer seq(str2num(ref.substr(start_position, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
+	unsigned int Hache(hash64shift(canon) % 16);
 	color c(0);
 	color minimal_color(-1);
 	if (map[Hache].count(canon) != 0) {
@@ -406,11 +406,11 @@ int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 			minimal_color&=c;
 		}
 	}
-	for (uint j(start_position); j + k < ref.size(); ++j) {
+	for (unsigned int j(start_position); j + k < ref.size(); ++j) {
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			c = map[Hache][canon].first;
 		}
@@ -430,7 +430,7 @@ int64_t contig_break(const string& ref, int64_t start_position,Map map[]){
 int64_t error_in_contigs_kmers(const string& ref,Map map[]){
 	int64_t result(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
+	unsigned int Hache(hash64shift(canon) % 16);
 	color c(0);
 	if (map[Hache].count(canon) != 0) {
 		c = map[Hache][canon].first;
@@ -438,11 +438,11 @@ int64_t error_in_contigs_kmers(const string& ref,Map map[]){
 			result++;
 		}
 	}
-	for (uint j(0); j + k < ref.size(); ++j) {
+	for (unsigned int j(0); j + k < ref.size(); ++j) {
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			c = map[Hache][canon].first;
 		}
@@ -458,9 +458,9 @@ int64_t error_in_contigs_kmers(const string& ref,Map map[]){
 int64_t error_in_contigs_positions(const string& ref,Map map[]){
 	int64_t result(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
+	unsigned int Hache(hash64shift(canon) % 16);
 	color c(0);
-	uint j(0);
+	unsigned int j(0);
 	if (map[Hache].count(canon) != 0) {
 		c = map[Hache][canon].first;
 		if (c == 0) {
@@ -480,7 +480,7 @@ int64_t error_in_contigs_positions(const string& ref,Map map[]){
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			c = map[Hache][canon].first;
 			if (c ==0) {
@@ -506,7 +506,7 @@ int64_t get_major_color(const string& ref,Map map[]){
 	vector<int> color_count(color_number,0);
 	int64_t total(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
+	unsigned int Hache(hash64shift(canon) % 16);
 	string colorstr;
 	if (map[Hache].count(canon) != 0) {
 		colorstr=get_color_code( map[Hache][canon].first);
@@ -517,11 +517,11 @@ int64_t get_major_color(const string& ref,Map map[]){
 		}
 		total++;
 	}
-	for (uint j(0); j + k < ref.size(); ++j) {
+	for (unsigned int j(0); j + k < ref.size(); ++j) {
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			colorstr=get_color_code( map[Hache][canon].first);
 			for(int i(0);i<color_number;++i){
@@ -549,8 +549,8 @@ int64_t phasing_error_in_contigs_positions(const string& ref,Map map[]){
 	int result(0);
 	int64_t mc(get_major_color(ref,map));
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
-	uint j(0);
+	unsigned int Hache(hash64shift(canon) % 16);
+	unsigned int j(0);
 	if (map[Hache].count(canon) != 0) {
 		color c = map[Hache][canon].first;
 		if(not is_set(mc,c)){
@@ -568,7 +568,7 @@ int64_t phasing_error_in_contigs_positions(const string& ref,Map map[]){
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			color c = map[Hache][canon].first;
 			if(not is_set(mc,c)){
@@ -593,7 +593,7 @@ int64_t phasing_error_in_contigs_kmers(const string& ref,Map map[]){
 	vector<int> color_count(color_number,0);
 	int64_t total(0);
 	kmer seq(str2num(ref.substr(0, k))), rcSeq(rcb(seq, k)), canon(min(seq, rcSeq));
-	uint Hache(hash64shift(canon) % 16);
+	unsigned int Hache(hash64shift(canon) % 16);
 	string colorstr;
 	if (map[Hache].count(canon) != 0) {
 		colorstr=get_color_code( map[Hache][canon].first);
@@ -604,11 +604,11 @@ int64_t phasing_error_in_contigs_kmers(const string& ref,Map map[]){
 		}
 		total++;
 	}
-	for (uint j(0); j + k < ref.size(); ++j) {
+	for (unsigned int j(0); j + k < ref.size(); ++j) {
 		updateK(seq, ref[j + k]);
 		updateRCK(rcSeq, ref[j + k]);
 		canon = (min(seq, rcSeq));
-		uint Hache(hash64shift(canon) % 16);
+		unsigned int Hache(hash64shift(canon) % 16);
 		if (map[Hache].count(canon) != 0) {
 			colorstr=get_color_code( map[Hache][canon].first);
 			for(int i(0);i<color_number;++i){
@@ -650,7 +650,7 @@ void count_break_and_errors(Map map[], const string& file_name, const bool print
 			getline(in, useless);
 			getline(in, ref);
 		}
-		if (ref.size()>(uint)k) {
+		if (ref.size()>(unsigned int)k) {
 			total_contigs++;
 			total_nuc+=ref.size();
 			// int64_t local_errors=error_in_contigs(ref,map);
@@ -709,7 +709,7 @@ void count_break_and_errors(Map map[], const string& file_name, const bool print
 	cout<<"\nContigs with breaks:	"<<intToString(broke_contigs)<<"	Phasing breaks (total):	" << intToString(breaks)<< endl;
 	cout<<"Breaks distribution"<<endl;
 
-	for(uint i(0);i<distrib_breaks.size()-1;++i){
+	for(unsigned int i(0);i<distrib_breaks.size()-1;++i){
 		if(distrib_breaks[i]!=0){
 			cout<<intToString(distrib_breaks[i])<<"		contigs have	"<<intToString(i)<<"	phase breaks"<<endl;
 		}
@@ -720,7 +720,7 @@ void count_break_and_errors(Map map[], const string& file_name, const bool print
 
 	cout<<"\nContigs with errors:	"<<intToString(Erroneous_contigs)<<"	Errors (total):	" << intToString(errors) << endl;
 	cout<<"Sequencing errors distribution"<<endl;
-	for(uint i(0);i<distrib_errors.size()-1;++i){
+	for(unsigned int i(0);i<distrib_errors.size()-1;++i){
 		if(distrib_errors[i]!=0){
 			cout<<intToString(distrib_errors[i])<<"		contigs have	"<<i<<" sequencing errors"<<endl;
 		}
@@ -730,7 +730,7 @@ void count_break_and_errors(Map map[], const string& file_name, const bool print
 	}
 
 	cout<<"Phasing Errors distribution"<<endl;
-	for(uint i(0);i<distrib_phasing_errors.size()-1;++i){
+	for(unsigned int i(0);i<distrib_phasing_errors.size()-1;++i){
 		if(distrib_phasing_errors[i]!=0){
 			cout<<intToString(distrib_phasing_errors[i])<<"		contigs have	"<<i<<" phasing errors"<<endl;
 		}

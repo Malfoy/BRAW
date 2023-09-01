@@ -11,12 +11,12 @@ using namespace std;
 
 
 
-string clean_prefix(string str,uint min_length=15,uint max_missmatch=0){
+string clean_prefix(string str,unsigned int min_length=15,unsigned int max_missmatch=0){
 	char c(str[0]);
-	uint prefix_length(1);
-	uint i(1);
-	uint miss(0);
-	uint con_match(0);
+	unsigned int prefix_length(1);
+	unsigned int i(1);
+	unsigned int miss(0);
+	unsigned int con_match(0);
 
 	for(;i< str.size();++i){
 		if(str[i]==c){
@@ -40,11 +40,11 @@ string clean_prefix(string str,uint min_length=15,uint max_missmatch=0){
 
 
 
-string clean_suffix(string str,uint min_length=15,uint max_missmatch=0){
-	uint j(1);
-	uint suffix_length(0);
-	uint miss(0);
-	uint con_match(0);
+string clean_suffix(string str,unsigned int min_length=15,unsigned int max_missmatch=0){
+	unsigned int j(1);
+	unsigned int suffix_length(0);
+	unsigned int miss(0);
+	unsigned int con_match(0);
 	char c=(str[str.size()-1]);
 	for(;j< str.size();++j){
 		if(str[str.size()-1-j]==c){
@@ -68,7 +68,7 @@ string clean_suffix(string str,uint min_length=15,uint max_missmatch=0){
 
 
 
-string clean_homo(string str,uint advanced=0, uint min_length=15,uint max_missmatch=0){
+string clean_homo(string str,unsigned int advanced=0, unsigned int min_length=15,unsigned int max_missmatch=0){
 	str=clean_prefix(str,10,1);
 	if(str.size()<2){
 		return "";
@@ -106,7 +106,7 @@ string getLineFasta(ifstream* in){
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -130,7 +130,7 @@ int main(int argc, char ** argv){
 	}
 	string input(argv[1]);
 	bool cleaning(true);
-	uint min_size(0);
+	unsigned int min_size(0);
 	if(argc>2){
 		min_size=(stoi(argv[2]));
 	}

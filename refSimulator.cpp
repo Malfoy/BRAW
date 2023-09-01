@@ -2,6 +2,7 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include "zstr.hpp"
 
 
 
@@ -47,16 +48,24 @@ char randNuc(char c){
 	return randNucle(c);
 }
 
-
+zstr::ifstream* openFile(const string& input_file){
+	zstr::ifstream* input_stream = new zstr::ifstream(input_file);
+	if(not input_stream-> good()){
+		cout << "Problem with file opening" << endl;
+        return NULL;
+	}
+	return input_stream;
+}
 
 int main(int argc, char ** argv){
-	if(argc<3){
-		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<endl;
+	if(argc<4){
+		cout<<"[Genome reference file] "<<"[Heterozygous rate]"<<"[Out file name]"<<endl;
 		exit(0);
 	}
-	uint snp1(0),snp2(0);
+	unsigned int snp1(0),snp2(0);
 	string input(argv[1]);
 	float hetero(stof(argv[2])/2);
+	string outName(argv[3]);
 	uint64_t heteroRate;
 	if(hetero==0){
 		heteroRate=-1;
@@ -64,19 +73,26 @@ int main(int argc, char ** argv){
 		heteroRate=(1/hetero);
 	}
 	srand (time(NULL));
-	ifstream in(input);
-	//~ uint rate(10);
+	zstr::ifstream* in = openFile(input);
+	if(in==NULL){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
+    if(not in->good()){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
+	//~ unsigned int rate(10);
 	string useless, ref,ref2,ref3;
-	string fileName(input+(string)argv[2]+".fa");
 	//~ cout<<fileName<<endl;
-	//~ ofstream out(fileName,ios::trunc);
-	uint nimp(0);
-	while(not in.eof()){
-		getline(in,useless);
-		getline(in,ref);
+	zstr::ofstream* out = (new zstr::ofstream(outName));
+	unsigned int nimp(0);
+	while(not in->eof()){
+		getline(*in,useless);
+		getline(*in,ref);
 		if(not ref.empty() and not useless.empty()){
 			ref3=ref2=ref;
-			for(uint i(0);i<ref.size();++i){
+			for(unsigned int i(0);i<ref.size();++i){
 				if(rand()%heteroRate==0){
 					ref2[i]=randNucle(ref[i]);
 					snp1++;
@@ -86,10 +102,15 @@ int main(int argc, char ** argv){
 					snp2++;
 				}
 			}
-			cout<<">AlternativeReference1:"+to_string(snp1)<<endl;
-			cout<<ref2<<endl;
-			cout<<">AlternativeReference2:"+to_string(snp2)<<endl;
-			cout<<ref3<<endl;
+			ref2+="\n";
+			string header = ">AlternativeReference1:"+to_string(snp1)+"\n";
+			out->write(header.c_str(), header.size());
+			out->write(ref2.c_str(), ref2.size());
+			//header = ">AlternativeReference2:" + to_string(snp2) + "\n";
+			//out->write(header.c_str(), header.size());
+			//out->write(ref3.c_str(), ref3.size());
 		}
 	}
+	delete in;
+	delete out;
 }

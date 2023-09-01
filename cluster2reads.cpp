@@ -38,9 +38,9 @@ string getCanonical(const string& str){
 	return (min(str,revComp(str)));
 }
 
-uint count_str(const string& str,char c){
-	uint res(0);
-	for(uint i(0);i<str.size();++i){
+unsigned int count_str(const string& str,char c){
+	unsigned int res(0);
+	for(unsigned int i(0);i<str.size();++i){
 		if(str[i]==c){
 			++res;
 		}
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 	string readFile(argv[1]);
 	string line,number;
 	string clusterFile(argv[2]);
-	uint minSizeCluster(stoi(argv[3]));
+	unsigned int minSizeCluster(stoi(argv[3]));
 	string unitig,useless,useless2,useless3,msp;
 	ifstream readStream(readFile);
 	ifstream  clusterStream(clusterFile);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	uint clusterNumber(0);
+	unsigned int clusterNumber(0);
 	while(not clusterStream.eof()){
 		getline(clusterStream,line);
 		if(count_str(line,' ')>=minSizeCluster){
@@ -111,14 +111,14 @@ int main(int argc, char *argv[]) {
 				if(line[i]==' '){
 					number=line.substr(lasti,i-lasti);
 					lasti=i+1;
-					uint uNumber=stoi(number);
+					unsigned int uNumber=stoi(number);
 					out<<reads[uNumber]<<"\n";
 				}
 				++i;
 			}
 			number=line.substr(lasti,i-lasti);
 			if(number.size()>0){
-				uint uNumber=stoi(number);
+				unsigned int uNumber=stoi(number);
 				out<<reads[uNumber]<<"\n";
 			}
 		}

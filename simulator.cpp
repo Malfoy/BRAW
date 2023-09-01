@@ -49,7 +49,7 @@ char randNucle(char c='N'){
 
 
 void insertion(double rate, string& result){
-	uint dice(rand() % 100);
+	unsigned int dice(rand() % 100);
 	if(dice < rate){
 		char newNucleotide(randNucle());
 		result.push_back(newNucleotide);
@@ -58,15 +58,15 @@ void insertion(double rate, string& result){
 }
 
 
-//~ string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
-string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
+//~ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
+string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
 	string result;
 	result.reserve(5 * referenceSequence.size());
-	for(uint i(0); i < referenceSequence.size(); ++i){
+	for(unsigned int i(0); i < referenceSequence.size(); ++i){
 		double substitutionRate(mutRate * ratioMutation[0]);
 		double insertionRate(mutRate * ratioMutation[1]);
 		double deletionRate(mutRate * ratioMutation[2]);
-		uint dice(rand() % 100);
+		unsigned int dice(rand() % 100);
 
 
 		if (dice <substitutionRate ){
@@ -79,7 +79,7 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 			continue;
 		} else if(dice < deletionRate+substitutionRate){
 			//DELETION
-			uint dice2(rand() % 100);
+			unsigned int dice2(rand() % 100);
 			while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
 				++i;
 				dice2 = rand() % 100;
@@ -122,10 +122,10 @@ int main(int argc, char ** argv){
 	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);
-	uint errorRate((stof(argv[4]))*10000);
+	unsigned int errorRate((stof(argv[4]))*10000);
 	string prefix(argv[5]);
 	string useless, ref,read,pread;
-	uint i(0);
+	unsigned int i(0);
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
 	while(not in.eof()){
 		getline(in,useless);
@@ -138,16 +138,16 @@ int main(int argc, char ** argv){
 				}
 				//produce a read
 				uint64_t position=xs(seed)%ref.size();
-				//~ uint position=rand()%ref.size();
+				//~ unsigned int position=rand()%ref.size();
 				if(position+length<=ref.size()){
 					bool valid(true);
-					uint error(0);
+					unsigned int error(0);
 					pread=ref.substr(position,length);
 					read=pread;
 					if(long_reads){
 						read=mutateSequence(read,errorRate/100);
 					}else{
-						for(uint i(0);i<read.size();++i){
+						for(unsigned int i(0);i<read.size();++i){
 							if(read[i]=='N' or read[i]=='n'){valid=false;break;}
 							if(xs(seed)%10000<=errorRate){
 							//~ if(rand()%errorRate==0){
@@ -157,9 +157,9 @@ int main(int argc, char ** argv){
 						}
 					}
 					if(valid){
-						perfect<<">"+to_string(position)<<"\n";
+						perfect<<">"+to_string(position)+"."+to_string(i)<<"\n";
 						perfect<<pread<<"\n";
-						out<<">"+to_string(position)<<"\n";
+						out<<">"+to_string(position+"."+to_string(i))<<"\n";
 						out<<read<<"\n";
 						nucProduced+=read.size();
 						++i;

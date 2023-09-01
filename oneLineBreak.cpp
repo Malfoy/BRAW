@@ -23,9 +23,9 @@ string getLineFasta(ifstream* in){
 }
 
 
-void clean(string& str, uint sizeMin){
+void clean(string& str, unsigned int sizeMin){
 	string out;
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':out+="A";break;
 			case 'A':out+="A";break;
@@ -48,11 +48,11 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	string input(argv[1]);
-	uint cleaning(stoi(argv[2]));
+	unsigned int cleaning(stoi(argv[2]));
 	srand (time(NULL));
 	string header, sequence,line;
 	ifstream in(input);
-	vector<uint> lengths;
+	vector<unsigned int> lengths;
 	while(not in.eof()){
 		getline(in,header);
 		if(header[0]!='>'){continue;}

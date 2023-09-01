@@ -14,7 +14,7 @@ using namespace std;
 
 
 void clean(string& str){
-	for(uint i(0); i< str.size(); ++i){
+	for(unsigned int i(0); i< str.size(); ++i){
 		switch(str[i]){
 			case 'a':break;
 			case 'A':break;
@@ -69,7 +69,7 @@ int main(int argc, char ** argv){
 					}
 					cout<<ref<<"\n";
 				}else{
-					
+
 				}
 			}
 		}

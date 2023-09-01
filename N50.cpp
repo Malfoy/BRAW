@@ -40,7 +40,7 @@ int main(int argc, char ** argv){
 		cout<<"Problem opening file"<<endl;
 		return 0;
 	}
-	vector<uint> lengths;
+	vector<unsigned int> lengths;
 	uint64_t size(0);
 	char c;
 	uint32_t min(1000000000);
@@ -61,7 +61,7 @@ int main(int argc, char ** argv){
 			size+=ref.size();
 		}
 	}
-	sort(lengths.begin(),lengths.end(),greater<uint>());
+	sort(lengths.begin(),lengths.end(),greater<unsigned int>());
 
 	cout<<"#contigs: "<<intToString(lengths.size())<<endl;
 	cout<<"Total size: "<<intToString(size) <<" bases (or "<<intToString(size-(min-1)*lengths.size())<<" "<<min<<"mer)"<<endl;
@@ -69,7 +69,7 @@ int main(int argc, char ** argv){
 	vector<double> proportions_to_compute({0.5,0.75,0.9,0.99});
 	vector<string> N,L;
 	uint64_t total(0),i(0);
-	for(uint I(0);I<proportions_to_compute.size();++I){
+	for(unsigned int I(0);I<proportions_to_compute.size();++I){
 		total=i=0;
 		while(total<size*proportions_to_compute[I]){
 			total+=lengths[i];

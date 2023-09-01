@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include "zstr.hpp"
 
 
 
@@ -21,7 +22,7 @@ inline uint32_t xs ( uint32_t x ) {
 
 
 char randNucle(char c='N'){
-	return 'N';
+	//return 'N';
 	switch (rand()%4){
 	//~ seed=xs(seed)%4
 	//~ switch (seed){
@@ -93,7 +94,7 @@ char randNucle_respect_cases(char c='N'){
 
 
 void insertion(double rate, string& result){
-	uint dice(rand() % 100);
+	unsigned int dice(rand() % 100);
 	if(dice < rate){
 		char newNucleotide(randNucle());
 		result.push_back(newNucleotide);
@@ -102,15 +103,15 @@ void insertion(double rate, string& result){
 }
 
 
-//~ string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
-string mutateSequence(const string& referenceSequence,uint mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
+//~ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
+string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
 	string result;
 	result.reserve(5 * referenceSequence.size());
-	for(uint i(0); i < referenceSequence.size(); ++i){
+	for(unsigned int i(0); i < referenceSequence.size(); ++i){
 		double substitutionRate(mutRate * ratioMutation[0]);
 		double insertionRate(mutRate * ratioMutation[1]);
 		double deletionRate(mutRate * ratioMutation[2]);
-		uint dice(rand() % 100);
+		unsigned int dice(rand() % 100);
 
 		if (dice <substitutionRate ){
 			//SUBSTITUTION
@@ -122,7 +123,7 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 			continue;
 		} else if(dice < deletionRate+substitutionRate){
 			//DELETION
-			uint dice2(rand() % 100);
+			unsigned int dice2(rand() % 100);
 			while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
 				++i;
 				dice2 = rand() % 100;
@@ -145,40 +146,59 @@ string mutateSequence(const string& referenceSequence,uint mutRate, vector <doub
 }
 
 
-
+zstr::ifstream* openFile(const string& input_file){
+	zstr::ifstream* input_stream = new zstr::ifstream(input_file);
+	if(not input_stream-> good()){
+		cout << "Problem with file opening" << endl;
+        return NULL;
+	}
+	return input_stream;
+}
 
 int main(int argc, char ** argv){
 	if(argc<4){
-		cout<<"[read file] [error rate] [prefix]"<<endl;
+		cout<<"[read file] [error rate] [outfile]"<<endl;
 		exit(0);
 	}
 	string input(argv[1]);
 	srand (time(NULL));
-	ifstream in(input);
-	uint errorRate((stof(argv[2]))*10000);
+	zstr::ifstream* in = openFile(input);
+	if(in==NULL){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
+    if(not in->good()){
+        cout<<"Can't open file: "<<input<<endl;
+        return -1;
+    }
+	unsigned int errorRate((stof(argv[2]))*10000);
 	string prefix(argv[3]);
 	string useless, ref,read,pread;
-	uint indice_header(0);
-	ofstream out(prefix+".fa");
-	while(not in.eof()){
-		getline(in,useless);
-		getline(in,read);
+	unsigned int indice_header(0);
+	zstr::ofstream* out = (new zstr::ofstream(prefix));
+	while(not in->eof()){
+		getline(*in,useless);
+		getline(*in,read);
 		if(not useless.empty()){
 			if(not read.empty()){
-				for(uint i(0);i<read.size();++i){
+				for(unsigned int i(0);i<read.size();++i){
 					if((uint32_t)rand()%10000<=errorRate){
 						read[i]=randNucle_respect_cases(read[i]);
 					}
 				}
-				out<<useless<<"\n";
+				useless += "\n";
+				read += "\n";
+				out->write(useless.c_str(), useless.size());
 				indice_header++;
-				out<<read<<"\n";
+				out->write(read.c_str(), read.size());
 			}else{
-				out<<useless<<"\n";
+				useless += "\n";
+				read += "\n";
+				out->write(useless.c_str(), useless.size());
 				indice_header++;
-				out<<read<<"\n";
+				out->write(read.c_str(), read.size());
 			}
 		}
 	}
+	delete out;
 }
-
