@@ -43,6 +43,7 @@ int main(int argc, char ** argv){
 	vector<uint> lengths;
 	uint64_t size(0);
 	char c;
+	uint32_t min(1000000000);
 	while(not in.eof()){
 		getline(in,useless);
 		getline(in,ref);
@@ -54,13 +55,16 @@ int main(int argc, char ** argv){
 			}
 		if(not ref.empty() and not useless.empty()){
 			lengths.push_back(ref.size());
+			if(ref.size()<min){
+				min=ref.size();
+			}
 			size+=ref.size();
 		}
 	}
 	sort(lengths.begin(),lengths.end(),greater<uint>());
 
 	cout<<"#contigs: "<<intToString(lengths.size())<<endl;
-	cout<<"Total size: "<<intToString(size) <<" bases (or "<<intToString(size-30*lengths.size())<<" 31mer)"<<endl;
+	cout<<"Total size: "<<intToString(size) <<" bases (or "<<intToString(size-(min-1)*lengths.size())<<" "<<min<<"mer)"<<endl;
 
 	vector<double> proportions_to_compute({0.5,0.75,0.9,0.99});
 	vector<string> N,L;
