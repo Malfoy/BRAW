@@ -7,7 +7,7 @@
 #include <chrono>
 #include "robin_hood.h"
 #include "omp.h"
-
+#include <cstdint>
 
 
 

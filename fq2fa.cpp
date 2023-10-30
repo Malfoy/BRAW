@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "zstr.hpp"
-
+#include <cstdint>
 
 
 

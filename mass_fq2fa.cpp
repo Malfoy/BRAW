@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "zstr.hpp"
 #include "strict_fstream.hpp"
-
+#include <cstdint>
 
 
 using namespace std;

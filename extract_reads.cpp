@@ -3,7 +3,7 @@
 #include <iostream>
 #include <list>
 #include "robin_hood.h"
-
+#include <cstdint>
 
 
 using namespace std;

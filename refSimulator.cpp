@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include "zstr.hpp"
+#include <cstdint>
 
 
 

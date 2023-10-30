@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include "omp.h"
-
+#include <cstdint>
 
 
 using namespace std;
