@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include "sparsepp/spp.h"
-
+#include <cstdint>
 using spp::sparse_hash_map;
 
 

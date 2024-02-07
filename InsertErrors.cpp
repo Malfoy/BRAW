@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "zstr.hpp"
-
+#include <cstdint>
 
 
 using namespace std;

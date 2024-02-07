@@ -10,7 +10,7 @@
 #include <mutex>
 #include <array>
 #include <unordered_map>
-
+#include <cstdint>
 
 
 __uint128_t offsetUpdateAnchors;
