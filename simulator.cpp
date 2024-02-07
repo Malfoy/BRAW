@@ -3,14 +3,16 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <cstdint>
+
 
 
 
 using namespace std;
 
 
-static unsigned int seed;
+
+static uint32_t seed;
+
 
 
 uint32_t xs(uint32_t& y){
@@ -19,10 +21,8 @@ uint32_t xs(uint32_t& y){
 
 
 
-
-
 char randNucle(char c='N'){
-	//~ switch (rand()%4){
+	// switch (rand()%4){
 	switch (xs(seed)%4){
 		case 0:
 			if(c!='A'){
@@ -45,8 +45,10 @@ char randNucle(char c='N'){
 			}
 			return randNucle(c);
 	}
+	seed=xs(seed);
 	return randNucle(c);
 }
+
 
 
 void insertion(double rate, string& result){
@@ -59,40 +61,54 @@ void insertion(double rate, string& result){
 }
 
 
+uint64_t error_inserted(0);
+
 //~ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.06,0.73,0.21}){
-string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.37,0.09,0.54}){//NANOPORE
+string mutateSequence(const string& referenceSequence,unsigned int mutRate, vector <double> ratioMutation={0.37,0.09,0.53}){//NANOPORE
 	string result;
+	// cout<<error_inserted<<endl;
 	result.reserve(5 * referenceSequence.size());
 	for(unsigned int i(0); i < referenceSequence.size(); ++i){
-		double substitutionRate(mutRate * ratioMutation[0]);
-		double insertionRate(mutRate * ratioMutation[1]);
-		double deletionRate(mutRate * ratioMutation[2]);
-		unsigned int dice(rand() % 10000);
+		// cout<<i<<endl;
+		uint64_t substitutionRate(mutRate * ratioMutation[0]);
+		uint64_t insertionRate(mutRate * ratioMutation[1]);
+		uint64_t deletionRate(mutRate * ratioMutation[2]);
+		// cout<<deletionRate<<endl;
+		uint64_t bigint(1000000); 
+		if(bigint<mutRate){
+			cout<<"fail"<<endl;
+			exit(0);
+		}else{
+			// cout<<bigint<<endl;
+			// cout<<mutRate<<endl;
+			// cin.get();
+		}
+		uint64_t dice(rand() % bigint);
 
 
 		if (dice <substitutionRate ){
-			//SUBSTITUTION
+			// cout<<"SUBSTITUTION"<<endl;
 			char newNucleotide(randNucle());
 			while(newNucleotide == referenceSequence[i]){
 				newNucleotide = randNucle();
 			}
 			result.push_back(newNucleotide);
+			error_inserted++;
 			continue;
 		} else if(dice < deletionRate+substitutionRate){
-			//DELETION
-			unsigned int dice2(rand() % 10000);
-			while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
-				++i;
-				dice2 = rand() % 10000;
-			}
+			// cout<<"DELECTION"<<endl;
+			uint64_t dice2(rand() % bigint);
+			++i;
+			error_inserted++;
+			
 			continue;
 		} else if (dice < deletionRate + substitutionRate + insertionRate){
-			//INSERTION
+			// cout<<"INSERTION"<<endl;
 			char newNucleotide(randNucle());
 			result.push_back(referenceSequence[i]);
 			result.push_back(newNucleotide);
-			insertion(deletionRate + substitutionRate + insertionRate, result); // larger than 1 insertions
-
+			// insertion(deletionRate + substitutionRate + insertionRate, result); // larger than 1 insertions
+			error_inserted++;
 			continue;
 		} else {
 			result.push_back(referenceSequence[i]);
@@ -113,6 +129,7 @@ int main(int argc, char ** argv){
 		cout<<"[Genome reference file] [read length] [coverage] [error rate] [prefix] [LR]"<<endl;
 		exit(0);
 	}
+	seed=rand();
 	bool long_reads(false);
 	if(argc>6){
 		long_reads=true;
@@ -123,7 +140,7 @@ int main(int argc, char ** argv){
 	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);
-	unsigned int errorRate((stof(argv[4]))*10000);
+	uint64_t errorRate((stof(argv[4]))*1000000);
 	string prefix(argv[5]);
 	string useless, ref,read,pread;
 	unsigned int i(0);
@@ -150,7 +167,7 @@ int main(int argc, char ** argv){
 					}else{
 						for(unsigned int i(0);i<read.size();++i){
 							if(read[i]=='N' or read[i]=='n'){valid=false;break;}
-							if(xs(seed)%10000<=errorRate){
+							if(xs(seed)%100000<=errorRate){
 							//~ if(rand()%errorRate==0){
 								read[i]=randNucle(read[i]);
 								++error;
@@ -170,4 +187,5 @@ int main(int argc, char ** argv){
 
 		}
 	}
+	cout<<error_inserted<<" errors inserted"<<endl;
 }
