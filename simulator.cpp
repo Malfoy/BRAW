@@ -66,7 +66,7 @@ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vect
 		double substitutionRate(mutRate * ratioMutation[0]);
 		double insertionRate(mutRate * ratioMutation[1]);
 		double deletionRate(mutRate * ratioMutation[2]);
-		unsigned int dice(rand() % 100);
+		unsigned int dice(rand() % 10000);
 
 
 		if (dice <substitutionRate ){
@@ -79,10 +79,10 @@ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vect
 			continue;
 		} else if(dice < deletionRate+substitutionRate){
 			//DELETION
-			unsigned int dice2(rand() % 100);
+			unsigned int dice2(rand() % 10000);
 			while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
 				++i;
-				dice2 = rand() % 100;
+				dice2 = rand() % 10000;
 			}
 			continue;
 		} else if (dice < deletionRate + substitutionRate + insertionRate){
@@ -145,7 +145,7 @@ int main(int argc, char ** argv){
 					pread=ref.substr(position,length);
 					read=pread;
 					if(long_reads){
-						read=mutateSequence(read,errorRate/100);
+						read=mutateSequence(read,errorRate);
 					}else{
 						for(unsigned int i(0);i<read.size();++i){
 							if(read[i]=='N' or read[i]=='n'){valid=false;break;}
