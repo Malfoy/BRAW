@@ -14,6 +14,9 @@ using namespace std;
 static unsigned int seed;
 
 
+
+uint64_t error_inserted(0);
+
 uint32_t xs(uint32_t& y){
 	y^=(y<<13); y^=(y>>17);y=(y^=(y<<15)); return y;
 }
@@ -68,7 +71,7 @@ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vect
 		double substitutionRate(mutRate * ratioMutation[0]);
 		double insertionRate(mutRate * ratioMutation[1]);
 		double deletionRate(mutRate * ratioMutation[2]);
-		unsigned int dice(rand() % 100);
+		unsigned int dice(rand() % 10000);
 
 
 		if (dice <substitutionRate ){
@@ -77,22 +80,25 @@ string mutateSequence(const string& referenceSequence,unsigned int mutRate, vect
 			while(newNucleotide == referenceSequence[i]){
 				newNucleotide = randNucle();
 			}
+			error_inserted++;
 			result.push_back(newNucleotide);
 			continue;
 		} else if(dice < deletionRate+substitutionRate){
 			//DELETION
 			unsigned int dice2(rand() % 100);
-			while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
+			// while (dice2 < deletionRate+substitutionRate){ // deletions larger than 1
 				++i;
-				dice2 = rand() % 100;
-			}
+				// dice2 = rand() % 100;
+			// }
+			error_inserted++;
 			continue;
 		} else if (dice < deletionRate + substitutionRate + insertionRate){
 			//INSERTION
 			char newNucleotide(randNucle());
 			result.push_back(referenceSequence[i]);
 			result.push_back(newNucleotide);
-			insertion(deletionRate + substitutionRate + insertionRate, result); // larger than 1 insertions
+			error_inserted++;
+			// insertion(deletionRate + substitutionRate + insertionRate, result); // larger than 1 insertions
 
 			continue;
 		} else {
@@ -124,7 +130,7 @@ int main(int argc, char ** argv){
 	float length(stof(argv[2]));
 	srand (time(NULL));
 	ifstream in(input);
-	unsigned int errorRate((stof(argv[4]))*10000);
+	unsigned int errorRate((stof(argv[4]))*1000000);
 	string prefix(argv[5]);
 	string useless, ref,read,pread;
 	ofstream perfect("p."+prefix+".fa"),out(prefix+".fa");
@@ -161,4 +167,5 @@ int main(int argc, char ** argv){
             }
 		}
 	}
+	cout<<"error inserted:	"<<error_inserted<<endl;
 }
